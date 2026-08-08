@@ -55,19 +55,28 @@
 <!-- ================= LANDING ================= -->
 <div class="view active" id="view-landing">
   <div class="hero">
-    <div class="hero-motif" aria-hidden="true">
-      <svg class="scales-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-        <circle class="scales-glow" cx="150" cy="140" r="120"></circle>
-        <line x1="112" y1="262" x2="188" y2="262" class="scales-base"></line>
-        <line x1="150" y1="258" x2="150" y2="92" class="scales-post"></line>
-        <g class="scales-rig">
-          <line x1="72" y1="90" x2="228" y2="90" class="scales-beam"></line>
-          <line x1="72" y1="90" x2="72" y2="132" class="scales-chain"></line>
-          <line x1="228" y1="90" x2="228" y2="132" class="scales-chain"></line>
-          <path d="M46,132 Q72,168 98,132 Z" class="scales-pan"></path>
-          <path d="M202,132 Q228,168 254,132 Z" class="scales-pan"></path>
-          <circle cx="150" cy="90" r="6" class="scales-pivot"></circle>
-        </g>
+    <div class="themis-motif" id="themisMotif" aria-hidden="true">
+      <svg class="themis-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle class="scales-glow" cx="150" cy="150" r="120"></circle>
+        <!-- kaide -->
+        <line x1="120" y1="272" x2="180" y2="272" class="themis-base"></line>
+        <line x1="150" y1="272" x2="150" y2="234" class="themis-base"></line>
+        <!-- cübbe -->
+        <path d="M122,234 C110,192 118,144 150,122 C182,144 190,192 178,234 Z" class="themis-robe"></path>
+        <!-- baş + göz bandı -->
+        <circle cx="150" cy="100" r="16" class="themis-head"></circle>
+        <line x1="136" y1="98" x2="164" y2="98" class="themis-blindfold"></line>
+        <!-- sol kol: kaldırılmış terazi -->
+        <path d="M138,130 Q100,112 80,88" class="themis-arm"></path>
+        <line x1="62" y1="72" x2="98" y2="72" class="scales-beam"></line>
+        <line x1="62" y1="72" x2="62" y2="94" class="scales-chain"></line>
+        <line x1="98" y1="72" x2="98" y2="94" class="scales-chain"></line>
+        <path d="M48,94 Q62,114 76,94 Z" class="scales-pan"></path>
+        <path d="M84,94 Q98,114 112,94 Z" class="scales-pan"></path>
+        <!-- sağ kol: kılıç -->
+        <path d="M162,130 Q204,152 218,206" class="themis-arm"></path>
+        <line x1="218" y1="206" x2="218" y2="258" class="themis-sword"></line>
+        <line x1="207" y1="214" x2="229" y2="214" class="themis-sword"></line>
       </svg>
     </div>
     <div>
