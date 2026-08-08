@@ -3,6 +3,7 @@ const taskModel = require('../models/taskModel');
 const userModel = require('../models/userModel');
 const notifyService = require('../services/notifyService');
 const asyncHandler = require('../utils/asyncHandler');
+const { partialName } = require('../utils/text');
 
 // Bildirim gönderimi ana isteği asla bloklamamalı/çökertmemeli — hata olursa sadece loglanır.
 function fireAndForget(promise) {
@@ -43,18 +44,6 @@ function serialize(t) {
     commentStatus: t.comment_status,
     commentRejectionReason: t.comment_rejection_reason,
   };
-}
-
-/**
- * "Ayşe Nur Yılmaz" -> "Ay** Nu* Yı****" — Görev Takibi'nde onaylanana kadar
- * kimliği tam gizler; her kelimenin yalnızca ilk 2 harfi görünür, gerisi yıldızlanır.
- */
-function partialName(fullName) {
-  return (fullName || '')
-    .trim()
-    .split(/\s+/)
-    .map((word) => (word.length <= 2 ? word : word.slice(0, 2) + '*'.repeat(word.length - 2)))
-    .join(' ');
 }
 
 /**
@@ -137,7 +126,7 @@ const apply = asyncHandler(async (req, res) => {
   if (!application) {
     return res.status(409).json({ error: 'Bu göreve zaten başvurdunuz.' });
   }
-  fireAndForget(notifyService.notifyNewApplication(existing, req.user));
+  fireAndForget(notifyService.notifyNewApplication(existing, req.user, { phone, contactAddress, note }));
   res.status(201).json({ message: 'Başvurunuz alındı. Görev sahibi onayladığında bilgilendirileceksiniz.' });
 });
 

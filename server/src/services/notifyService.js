@@ -1,6 +1,7 @@
 const notificationModel = require('../models/notificationModel');
 const userModel = require('../models/userModel');
 const mailer = require('../utils/mailer');
+const { partialName } = require('../utils/text');
 
 /**
  * Yeni bir görev açıldığında: aynı adliyede kayıtlı, onaylı avukatlara
@@ -37,12 +38,17 @@ async function notifyTaskOpenMatch(task) {
   );
 }
 
-/** Bir göreve yeni başvuru geldiğinde görev sahibine bildirim (isim/adres gizli, Görev Takibi'nden görülür). */
-async function notifyNewApplication(task, applicant) {
+/**
+ * Bir göreve yeni başvuru geldiğinde görev sahibine bildirim. İsim onaylanana kadar
+ * kısmen gizli kalır (Görev Takibi ile tutarlı), ama başvuranın ilettiği telefon/adres/
+ * tevkil bilgileri hemen mail ve site içi bildirimde iletilir.
+ */
+async function notifyNewApplication(task, applicant, { phone, contactAddress, note } = {}) {
   const owner = await userModel.findById(task.owner_id);
   if (!owner) return;
+  const maskedName = partialName(applicant.full_name);
   const title = 'Yeni başvuru: ' + task.title;
-  const body = 'Görevinize yeni bir başvuru geldi. Görev Takibi\'nden inceleyip onaylayabilirsiniz.';
+  const body = maskedName + ' bu göreve başvurdu. Görev Takibi\'nden onaylayabilirsiniz.';
 
   await notificationModel.create({ userId: owner.id, type: 'task_application', title, body, taskId: task.id });
   await mailer.sendMail({
@@ -50,8 +56,12 @@ async function notifyNewApplication(task, applicant) {
     subject: '[Nöbetçi] ' + title,
     text:
       'Merhaba ' + owner.full_name + ',\n\n' +
-      '"' + task.title + '" görevinize yeni bir başvuru geldi.\n' +
-      'Başvuranı incelemek ve onaylamak için panelinizdeki "Görev Takibi" sekmesine girin.\n',
+      '"' + task.title + '" görevinize yeni bir başvuru geldi (' + maskedName + ').\n\n' +
+      'Başvuranın ilettiği bilgiler:\n' +
+      'Telefon: ' + (phone || '—') + '\n' +
+      'İletişim Adresi: ' + (contactAddress || '—') + '\n' +
+      'Tevkil ile İlgili Bilgiler: ' + (note || '—') + '\n\n' +
+      'Başvuranın tam kimliğini görüp onaylamak için panelinizdeki "Görev Takibi" sekmesine girin.\n',
   });
 }
 
