@@ -29,31 +29,6 @@
   targets.forEach((el) => io.observe(el));
 })();
 
-/* ===================== THEMIS HEYKELİ: KAYDIRDIKÇA DÖNME ===================== */
-(function () {
-  const el = document.getElementById('themisMotif');
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!el || prefersReduced) return;
-
-  let ticking = false;
-  function update() {
-    const angle = window.scrollY * 0.18;
-    el.style.transform = 'rotate(' + angle + 'deg)';
-    ticking = false;
-  }
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!ticking) {
-        requestAnimationFrame(update);
-        ticking = true;
-      }
-    },
-    { passive: true }
-  );
-  update();
-})();
-
 /* ===================== İMLEÇ IŞIĞI ===================== */
 // Sadece ince işaretçili (fare) masaüstü cihazlarda: imleci yumuşakça izleyen
 // hafif bir marka rengi ışığı. Tıklamaları engellememesi için pointer-events:none.
