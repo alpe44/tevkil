@@ -52,7 +52,12 @@ const api = {
   listMyTasks: () => apiRequest('/tasks/mine'),
   listTakenTasks: () => apiRequest('/tasks/taken'),
   createTask: (payload) => apiRequest('/tasks', { method: 'POST', body: payload }),
-  acceptTask: (id, payload) => apiRequest('/tasks/' + id + '/accept', { method: 'POST', body: payload }),
+  applyToTask: (id, payload) => apiRequest('/tasks/' + id + '/apply', { method: 'POST', body: payload }),
+  listMyApplications: () => apiRequest('/tasks/applications/mine'),
+  approveApplication: (taskId, applicantId) =>
+    apiRequest('/tasks/' + taskId + '/applications/' + applicantId + '/approve', { method: 'POST' }),
+  rejectApplication: (taskId, applicantId) =>
+    apiRequest('/tasks/' + taskId + '/applications/' + applicantId + '/reject', { method: 'POST' }),
   completeTask: (id, rating) => apiRequest('/tasks/' + id + '/complete', { method: 'POST', body: { rating } }),
   listNotifications: () => apiRequest('/notifications'),
   markNotificationRead: (id) => apiRequest('/notifications/' + id + '/read', { method: 'POST' }),

@@ -29,6 +29,7 @@
       <button class="nav-btn active" data-view="landing">Ana Sayfa</button>
       <button class="nav-btn" data-view="board">Görev Panosu</button>
       <button class="nav-btn" id="navPanel" data-view="panel">Panelim</button>
+      <button class="nav-btn" id="navTracking" data-view="tracking" style="display:none;">Görev Takibi</button>
       <button class="nav-btn" id="navAdmin" data-view="admin" style="display:none;">Admin</button>
     </nav>
     <div style="display:flex; align-items:center; gap:14px;">
@@ -399,18 +400,29 @@
   </div>
 </div>
 
-<!-- Accept task modal -->
+<!-- ================= GÖREV TAKİBİ ================= -->
+<div class="view" id="view-tracking">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Görev Takibi</h2>
+      <span class="who">Açık görevlerinize gelen başvuruları inceleyip onaylayın veya reddedin.</span>
+    </div>
+    <div id="trackingList"></div>
+  </div>
+</div>
+
+<!-- Apply to task modal -->
 <div class="modal-bg" id="acceptModal">
   <div class="modal">
-    <h3>Görevi kabul et</h3>
-    <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Görev sahibine iletilmek üzere iletişim ve tevkil bilgilerinizi girin — bu bilgiler kabul ettiğinizde kendisine mail olarak gönderilir.</p>
+    <h3>Göreve başvur</h3>
+    <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Görev sahibi onayladığında iletilmek üzere iletişim ve tevkil bilgilerinizi girin. Onaylanana kadar isminiz ve bu bilgiler görev sahibine tam olarak gösterilmez.</p>
     <div class="err-msg" id="acceptErr"></div>
     <div class="field"><label>Telefon</label><input type="tel" id="acceptPhone" placeholder="05XX XXX XX XX"></div>
     <div class="field"><label>İletişim Adresi</label><input type="text" id="acceptContact" placeholder="Adres / e-posta / diğer iletişim bilgisi"></div>
     <div class="field"><label>Tevkil ile İlgili Bilgiler</label><textarea id="acceptNote" placeholder="Yetki belgesi (yetkiname) için gerekli olan sicil numarası, adres vb. bilgilerinizi giriniz"></textarea></div>
     <div class="modal-actions">
       <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeAcceptModal()">Vazgeç</button>
-      <button class="cta-btn" onclick="submitAcceptTask()">Gönder ve Kabul Et</button>
+      <button class="cta-btn" onclick="submitAcceptTask()">Başvuruyu Gönder</button>
     </div>
   </div>
 </div>

@@ -20,6 +20,7 @@ function switchView(name) {
   if (name === 'board') renderBoard();
   if (name === 'panel') renderPanel();
   if (name === 'admin') renderAdmin();
+  if (name === 'tracking') renderTracking();
 }
 
 document.querySelectorAll('[data-view]').forEach((el) => {
@@ -40,6 +41,18 @@ document.querySelectorAll('[data-view]').forEach((el) => {
     if (v === 'admin') {
       if (!currentUser || currentUser.role !== 'admin') {
         showToast('Bu sayfaya yalnızca admin erişebilir.');
+        return;
+      }
+    }
+    if (v === 'tracking') {
+      if (!currentUser) {
+        switchView('auth');
+        setAuthTab('login');
+        showToast('Görev Takibi için giriş yapmalısınız.');
+        return;
+      }
+      if (currentUser.status !== 'approved') {
+        showToast('Hesabınız admin onayı bekliyor, bu sayfaya henüz erişemezsiniz.');
         return;
       }
     }
@@ -162,7 +175,7 @@ let acceptModalTaskId = null;
 
 function openAcceptTaskModal(id) {
   if (!currentUser) {
-    showToast('Görevi kabul etmek için giriş yapmalısınız.');
+    showToast('Göreve başvurmak için giriş yapmalısınız.');
     switchView('auth');
     return;
   }
@@ -193,9 +206,9 @@ async function submitAcceptTask() {
   }
 
   try {
-    await api.acceptTask(acceptModalTaskId, { phone, contactAddress, note });
+    await api.applyToTask(acceptModalTaskId, { phone, contactAddress, note });
     closeAcceptModal();
-    showToast('Görevi üstlendiniz. Bilgileriniz görev sahibine mail olarak gönderildi.');
+    showToast('Başvurunuz alındı. Görev sahibi onayladığında bilgilendirileceksiniz.');
     renderPanel();
     renderBoard();
   } catch (e) {
@@ -266,8 +279,8 @@ function taskCardHTML(t, opts = {}) {
   if (opts.mode === 'board' || opts.mode === 'open') {
     if (t.status === 'open') {
       actionBtn = currentUser
-        ? '<button class="small-btn solid" onclick="openAcceptTaskModal(' + t.id + ')">Görevi Al</button>'
-        : '<button class="small-btn" onclick="switchView(\'auth\')">Almak için giriş yap</button>';
+        ? '<button class="small-btn solid" onclick="openAcceptTaskModal(' + t.id + ')">Başvur</button>'
+        : '<button class="small-btn" onclick="switchView(\'auth\')">Başvurmak için giriş yap</button>';
     }
   }
   if (opts.mode === 'mine' && t.status === 'assigned') {
@@ -386,6 +399,70 @@ async function renderPanel() {
   document.getElementById('profRating').textContent = currentUser.rating_avg ? currentUser.rating_avg + ' ★' : '—';
   document.getElementById('profCompleted').textContent = currentUser.completed_count || 0;
   document.getElementById('profCreated').textContent = currentUser.created_count || 0;
+}
+
+/* ===================== GÖREV TAKİBİ ===================== */
+function trackingTaskHTML(t) {
+  const rows = t.applications
+    .map(
+      (a, idx) =>
+        '<tr>' +
+        '<td class="mono">' + (idx + 1) + '.</td>' +
+        '<td>' + escapeHtml(a.displayName) + '</td>' +
+        '<td>' + escapeHtml(a.address || '—') + '</td>' +
+        '<td class="mono">' + timeAgo(a.appliedAt) + '</td>' +
+        '<td class="tracking-actions">' +
+        '<button class="icon-btn approve" title="Onayla" onclick="handleApproveApplication(' + t.taskId + ',' + a.applicantId + ')">✓</button>' +
+        '<button class="icon-btn reject" title="Reddet" onclick="handleRejectApplication(' + t.taskId + ',' + a.applicantId + ')">✕</button>' +
+        '</td>' +
+        '</tr>'
+    )
+    .join('');
+  return (
+    '<div class="tracking-card">' +
+    '<div class="tracking-card-head"><span class="city-tag">' + escapeHtml(t.city) + '</span><h4>' + escapeHtml(t.title) + '</h4></div>' +
+    '<div style="overflow-x:auto;">' +
+    '<table class="tracking-table">' +
+    '<thead><tr><th>Sıra</th><th>Başvuran</th><th>Adres</th><th>Başvuru</th><th>İşlem</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '</table>' +
+    '</div>' +
+    '</div>'
+  );
+}
+
+async function renderTracking() {
+  const el = document.getElementById('trackingList');
+  el.innerHTML = '<div class="empty-state"><h4>Yükleniyor…</h4></div>';
+  try {
+    const { tasks } = await api.listMyApplications();
+    el.innerHTML = tasks.length
+      ? tasks.map(trackingTaskHTML).join('')
+      : '<div class="empty-state"><h4>Bekleyen başvuru yok</h4>Açık görevlerinize başvuru geldiğinde burada, adil sıraya göre sıralanmış şekilde listelenir.</div>';
+  } catch (e) {
+    el.innerHTML = '<div class="empty-state"><h4>Yüklenemedi</h4>' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function handleApproveApplication(taskId, applicantId) {
+  try {
+    await api.approveApplication(taskId, applicantId);
+    showToast('Başvuru onaylandı, görev üstlendirildi.');
+    renderTracking();
+    renderPanel();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function handleRejectApplication(taskId, applicantId) {
+  try {
+    await api.rejectApplication(taskId, applicantId);
+    showToast('Başvuru reddedildi.');
+    renderTracking();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 /* ===================== INIT ===================== */

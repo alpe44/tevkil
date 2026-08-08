@@ -266,7 +266,9 @@ async function handleLogout() {
 function updateHeaderAuth() {
   const area = document.getElementById('headerAuthArea');
   const navAdmin = document.getElementById('navAdmin');
+  const navTracking = document.getElementById('navTracking');
   navAdmin.style.display = currentUser && currentUser.role === 'admin' ? '' : 'none';
+  navTracking.style.display = currentUser && currentUser.status === 'approved' ? '' : 'none';
 
   if (currentUser) {
     const adminTag = currentUser.role === 'admin' ? '<span class="admin-badge">Admin</span>' : '';

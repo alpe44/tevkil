@@ -28,7 +28,7 @@ const createRules = [
 
 const completeRules = [body('rating').isInt({ min: 1, max: 5 }).withMessage('1 ile 5 arası bir puan giriniz.')];
 
-const acceptRules = [
+const applyRules = [
   body('phone')
     .trim()
     .notEmpty()
@@ -45,8 +45,11 @@ router.get('/open', taskController.listOpen);
 router.get('/queue', requireAuth, requireApproved, taskController.queueForCourthouse);
 router.get('/mine', requireAuth, requireApproved, taskController.listMine);
 router.get('/taken', requireAuth, requireApproved, taskController.listTaken);
+router.get('/applications/mine', requireAuth, requireApproved, taskController.listMyApplications);
 router.post('/', requireAuth, requireApproved, createRules, taskController.create);
-router.post('/:id/accept', requireAuth, requireApproved, acceptRules, taskController.accept);
+router.post('/:id/apply', requireAuth, requireApproved, applyRules, taskController.apply);
+router.post('/:id/applications/:applicantId/approve', requireAuth, requireApproved, taskController.approveApplication);
+router.post('/:id/applications/:applicantId/reject', requireAuth, requireApproved, taskController.rejectApplication);
 router.post('/:id/complete', requireAuth, requireApproved, completeRules, taskController.complete);
 
 module.exports = router;

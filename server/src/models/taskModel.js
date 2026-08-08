@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query, pool } = require('../config/db');
 
 const BASE_SELECT = `
   SELECT
@@ -49,19 +49,122 @@ async function listByAssignee(assigneeId) {
 }
 
 /**
- * Atomik kabul: satır yalnızca hâlâ 'open' ise VE görev sahibi kabul eden kişi değilse güncellenir.
- * İki avukat aynı anda kabul etmeye çalışırsa sadece biri UPDATE'i "kazanır" (yarış durumuna karşı korumalı).
+ * Bir avukatın bir göreve BAŞVURUSUNU kaydeder (henüz görev üstlenilmiş olmaz).
+ * Aynı kişi aynı göreve iki kez başvuramaz (UNIQUE(task_id, applicant_id)) —
+ * çakışma olursa null döner, controller bunu "zaten başvurdunuz" olarak ele alır.
  */
-async function acceptTask(taskId, assigneeId, { phone, contactAddress, note } = {}) {
+async function createApplication({ taskId, applicantId, phone, contactAddress, note }) {
+  try {
+    const { rows } = await query(
+      `INSERT INTO task_applications (task_id, applicant_id, phone, contact_address, note)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [taskId, applicantId, phone || null, contactAddress || null, note || null]
+    );
+    return rows[0];
+  } catch (err) {
+    if (err.code === '23505') return null; // unique violation — zaten başvurmuş
+    throw err;
+  }
+}
+
+/**
+ * Görev sahibinin, kendi AÇIK görevlerine gelen BEKLEYEN başvurularını listeler.
+ * Her görev içinde başvuranlar adil sıra ölçütüyle (en az tamamlanmış görev /
+ * en uzun süredir görev almamış önce) sıralanır — onay kararını kolaylaştırmak için.
+ */
+async function listPendingApplicationsForOwner(ownerId) {
   const { rows } = await query(
-    `UPDATE tasks
-        SET status = 'assigned', assignee_id = $2, assigned_at = now(),
-            acceptance_phone = $3, acceptance_contact = $4, acceptance_note = $5
-      WHERE id = $1 AND status = 'open' AND owner_id <> $2
-      RETURNING id`,
-    [taskId, assigneeId, phone || null, contactAddress || null, note || null]
+    `SELECT
+        ta.id AS application_id, ta.task_id, ta.applicant_id, ta.status AS application_status,
+        ta.phone, ta.contact_address, ta.note, ta.created_at AS applied_at,
+        t.title AS task_title, t.city AS task_city,
+        u.full_name AS applicant_name,
+        count(ct.id) FILTER (WHERE ct.status = 'completed') AS completed_count,
+        max(ct.completed_at) AS last_completed_at
+      FROM task_applications ta
+      JOIN tasks t ON t.id = ta.task_id
+      JOIN users u ON u.id = ta.applicant_id
+      LEFT JOIN tasks ct ON ct.assignee_id = u.id
+     WHERE t.owner_id = $1 AND t.status = 'open' AND ta.status = 'pending'
+     GROUP BY ta.id, t.id, u.id
+     ORDER BY t.created_at DESC, completed_count ASC NULLS FIRST, last_completed_at ASC NULLS FIRST, ta.created_at ASC`,
+    [ownerId]
   );
-  return rows.length ? findById(taskId) : null;
+  return rows;
+}
+
+async function findApplication(taskId, applicantId) {
+  const { rows } = await query(
+    'SELECT * FROM task_applications WHERE task_id = $1 AND applicant_id = $2',
+    [taskId, applicantId]
+  );
+  return rows[0] || null;
+}
+
+/**
+ * Görev sahibi bir başvuruyu onaylar: görev o kişiye atanır (tüm iletişim/tevkil
+ * bilgileriyle birlikte), aynı görevin diğer bekleyen başvuruları otomatik reddedilir.
+ * Tek transaction içinde yapılır; görev artık 'open' değilse (biri elden kaçırmışsa) başarısız olur.
+ */
+async function approveApplication(taskId, applicantId) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const appRes = await client.query(
+      `SELECT * FROM task_applications WHERE task_id = $1 AND applicant_id = $2 AND status = 'pending'`,
+      [taskId, applicantId]
+    );
+    const application = appRes.rows[0];
+    if (!application) {
+      await client.query('ROLLBACK');
+      return null;
+    }
+
+    const taskRes = await client.query(
+      `UPDATE tasks
+          SET status = 'assigned', assignee_id = $2, assigned_at = now(),
+              acceptance_phone = $3, acceptance_contact = $4, acceptance_note = $5
+        WHERE id = $1 AND status = 'open' AND owner_id <> $2
+        RETURNING id`,
+      [taskId, applicantId, application.phone, application.contact_address, application.note]
+    );
+    if (taskRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return null;
+    }
+
+    await client.query(
+      `UPDATE task_applications SET status = 'approved', decided_at = now() WHERE id = $1`,
+      [application.id]
+    );
+    const rejectedRes = await client.query(
+      `UPDATE task_applications
+          SET status = 'rejected', decided_at = now()
+        WHERE task_id = $1 AND id <> $2 AND status = 'pending'
+        RETURNING applicant_id`,
+      [taskId, application.id]
+    );
+
+    await client.query('COMMIT');
+    return { task: await findById(taskId), autoRejectedApplicantIds: rejectedRes.rows.map((r) => r.applicant_id) };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/** Görev sahibi tek bir başvuruyu (henüz onaylamadan) reddeder. */
+async function rejectApplication(taskId, applicantId) {
+  const { rows } = await query(
+    `UPDATE task_applications
+        SET status = 'rejected', decided_at = now()
+      WHERE task_id = $1 AND applicant_id = $2 AND status = 'pending'
+      RETURNING *`,
+    [taskId, applicantId]
+  );
+  return rows[0] || null;
 }
 
 /**
@@ -101,7 +204,11 @@ module.exports = {
   listOpen,
   listByOwner,
   listByAssignee,
-  acceptTask,
   completeTask,
   getUserStats,
+  createApplication,
+  listPendingApplicationsForOwner,
+  findApplication,
+  approveApplication,
+  rejectApplication,
 };
