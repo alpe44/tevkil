@@ -41,7 +41,7 @@ app.use('/api/notifications', notificationRoutes);
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // Statik frontend (prototipin uyarlanmış hâli)
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Bilinmeyen /api rotaları için 404
 app.use('/api', (req, res) => res.status(404).json({ error: 'Bulunamadı.' }));
