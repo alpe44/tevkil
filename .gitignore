@@ -5,3 +5,4 @@ npm-debug.log
 server/uploads/
 _tunnel.log
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
