@@ -10,6 +10,20 @@ const createRules = [
   body('description').trim().isLength({ min: 3, max: 4000 }).withMessage('Açıklama giriniz.'),
   body('city').trim().notEmpty().withMessage('Adliye/İl giriniz.'),
   body('dueDate').optional({ checkFalsy: true }).isISO8601().withMessage('Geçerli bir tarih giriniz.'),
+  body('taskType').trim().notEmpty().withMessage('Görev türünü seçiniz.'),
+  body('budget').optional({ checkFalsy: true }).isLength({ max: 60 }),
+  body('dueTime')
+    .optional({ checkFalsy: true })
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
+    .withMessage('Geçerli bir saat giriniz.'),
+  body('isOffSite').optional().isBoolean().withMessage('Geçersiz değer.'),
+  body('offSiteAddress').custom((value, { req }) => {
+    const isOffSite = req.body.isOffSite === true || req.body.isOffSite === 'true';
+    if (isOffSite && (!value || !String(value).trim())) {
+      throw new Error('Adliye dışı işlem için adres giriniz.');
+    }
+    return true;
+  }),
 ];
 
 const completeRules = [body('rating').isInt({ min: 1, max: 5 }).withMessage('1 ile 5 arası bir puan giriniz.')];

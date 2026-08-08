@@ -34,6 +34,11 @@ function serialize(t) {
     createdAt: t.created_at,
     assignedAt: t.assigned_at,
     completedAt: t.completed_at,
+    taskType: t.task_type,
+    budget: t.budget,
+    dueTime: t.due_time,
+    isOffSite: t.is_off_site,
+    offSiteAddress: t.off_site_address,
   };
 }
 
@@ -69,13 +74,19 @@ const listTaken = asyncHandler(async (req, res) => {
 
 const create = asyncHandler(async (req, res) => {
   if (!handleValidation(req, res)) return;
-  const { title, description, city, dueDate } = req.body;
+  const { title, description, city, dueDate, taskType, budget, dueTime, isOffSite, offSiteAddress } = req.body;
+  const offSite = isOffSite === true || isOffSite === 'true';
   const task = await taskModel.createTask({
     ownerId: req.user.id,
     title: title.trim(),
     description: description.trim(),
     city: city.trim(),
     dueDate: dueDate || null,
+    taskType: taskType.trim(),
+    budget: budget ? budget.trim() : null,
+    dueTime: dueTime || null,
+    isOffSite: offSite,
+    offSiteAddress: offSite ? (offSiteAddress || '').trim() : null,
   });
   fireAndForget(notifyService.notifyTaskOpenMatch(task));
   res.status(201).json({ message: 'Görev yayınlandı.', task: serialize(task) });

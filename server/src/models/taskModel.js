@@ -5,6 +5,7 @@ const BASE_SELECT = `
     t.id, t.title, t.description, t.city, t.due_date, t.status, t.rating,
     t.created_at, t.assigned_at, t.completed_at,
     t.acceptance_phone, t.acceptance_contact, t.acceptance_note,
+    t.task_type, t.budget, t.due_time, t.is_off_site, t.off_site_address,
     t.owner_id, ou.full_name AS owner_name,
     t.assignee_id, au.full_name AS assignee_name
   FROM tasks t
@@ -17,11 +18,17 @@ async function findById(id) {
   return rows[0] || null;
 }
 
-async function createTask({ ownerId, title, description, city, dueDate }) {
+async function createTask({
+  ownerId, title, description, city, dueDate,
+  taskType, budget, dueTime, isOffSite, offSiteAddress,
+}) {
   const { rows } = await query(
-    `INSERT INTO tasks (owner_id, title, description, city, due_date)
-     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [ownerId, title, description, city, dueDate || null]
+    `INSERT INTO tasks (owner_id, title, description, city, due_date, task_type, budget, due_time, is_off_site, off_site_address)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+    [
+      ownerId, title, description, city, dueDate || null,
+      taskType || null, budget || null, dueTime || null, Boolean(isOffSite), isOffSite ? offSiteAddress : null,
+    ]
   );
   return findById(rows[0].id);
 }

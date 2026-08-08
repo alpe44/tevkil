@@ -90,23 +90,65 @@ if (taskCityInput) {
 }
 
 /* ===================== TASKS ===================== */
+// "Adliye Dışı İşlem mi?" anahtarı açılınca adres alanını göster/gizle.
+const taskOffSiteToggle = document.getElementById('taskOffSite');
+if (taskOffSiteToggle) {
+  taskOffSiteToggle.addEventListener('change', () => {
+    document.getElementById('taskOffSiteAddress').style.display = taskOffSiteToggle.checked ? 'block' : 'none';
+  });
+}
+// "Hazır Açıklamalar" seçilince açıklama kutusuna metni doldurur.
+const taskQuickDescSelect = document.getElementById('taskQuickDesc');
+if (taskQuickDescSelect) {
+  taskQuickDescSelect.addEventListener('change', () => {
+    if (taskQuickDescSelect.value) {
+      document.getElementById('taskDesc').value = taskQuickDescSelect.value;
+      taskQuickDescSelect.selectedIndex = 0;
+    }
+  });
+}
+
 async function createTask() {
   if (!currentUser) {
     showToast('Görev açmak için giriş yapmalısınız.');
     return;
   }
   const city = document.getElementById('taskCity').value.trim();
+  const taskType = document.getElementById('taskType').value;
   const dueDate = document.getElementById('taskDate').value;
+  const dueTime = document.getElementById('taskTime').value;
+  const budget = document.getElementById('taskBudget').value;
+  const isOffSite = document.getElementById('taskOffSite').checked;
+  const offSiteAddress = document.getElementById('taskOffSiteAddress').value.trim();
   const title = document.getElementById('taskTitle').value.trim();
   const description = document.getElementById('taskDesc').value.trim();
-  if (!city || !title || !description) {
-    showToast('Lütfen adliye, başlık ve açıklama girin.');
+
+  if (!city || !taskType || !title || !description) {
+    showToast('Lütfen adliye, görev türü, başlık ve açıklama girin.');
     return;
   }
+  if (isOffSite && !offSiteAddress) {
+    showToast('Adliye dışı işlem için adres girin.');
+    return;
+  }
+
   try {
-    await api.createTask({ title, description, city, dueDate: dueDate || undefined });
+    await api.createTask({
+      title, description, city, taskType,
+      dueDate: dueDate || undefined,
+      dueTime: dueTime || undefined,
+      budget: budget || undefined,
+      isOffSite,
+      offSiteAddress: isOffSite ? offSiteAddress : undefined,
+    });
     document.getElementById('taskCity').value = '';
+    document.getElementById('taskType').value = '';
     document.getElementById('taskDate').value = '';
+    document.getElementById('taskTime').value = '';
+    document.getElementById('taskBudget').value = '';
+    document.getElementById('taskOffSite').checked = false;
+    document.getElementById('taskOffSiteAddress').value = '';
+    document.getElementById('taskOffSiteAddress').style.display = 'none';
     document.getElementById('taskTitle').value = '';
     document.getElementById('taskDesc').value = '';
     showToast('Görev yayınlandı.');
@@ -231,13 +273,17 @@ function taskCardHTML(t, opts = {}) {
   if (opts.mode === 'mine' && t.status === 'assigned') {
     actionBtn = '<button class="small-btn solid" onclick="openRatingModal(' + t.id + ')">Tamamla &amp; Puanla</button>';
   }
+  const dateTime = (t.date || '—') + (t.dueTime ? ' ' + t.dueTime : '');
   return (
     '<div class="task-card">' +
     '<div>' +
-    '<span class="city-tag">' + escapeHtml(t.city) + '</span>' +
+    '<span class="city-tag">' + escapeHtml(t.isOffSite ? 'Adliye Dışı · ' + t.city : t.city) + '</span>' +
+    (t.taskType ? '<span class="city-tag" style="margin-left:6px;">' + escapeHtml(t.taskType) + '</span>' : '') +
     '<h4>' + escapeHtml(t.title) + '</h4>' +
     '<div class="desc">' + escapeHtml(t.desc) + '</div>' +
-    '<div class="meta">Açan: ' + escapeHtml(t.ownerName) + ' · Tarih: ' + escapeHtml(t.date || '—') + ' · ' + timeAgo(t.createdAt) +
+    (t.isOffSite && t.offSiteAddress ? '<div class="desc" style="color:var(--brass-bright);">Adres: ' + escapeHtml(t.offSiteAddress) + '</div>' : '') +
+    '<div class="meta">Açan: ' + escapeHtml(t.ownerName) + ' · Tarih: ' + escapeHtml(dateTime) + ' · ' + timeAgo(t.createdAt) +
+    (t.budget ? ' · Bütçe: ' + escapeHtml(t.budget) : '') +
     (t.assigneeName ? ' · Üstlenen: ' + escapeHtml(t.assigneeName) : '') +
     (t.rating ? ' · Puan: ' + t.rating + '★' : '') +
     '</div>' +

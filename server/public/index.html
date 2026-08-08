@@ -281,19 +281,81 @@
     </div>
 
     <div id="ptab-open">
-      <div class="create-form">
-        <h3>Yeni Görev Aç</h3>
-        <div class="field-row">
-          <div class="field">
-            <label>Adliye / İl</label>
-            <input type="text" id="taskCity" placeholder="Ankara Adliyesi">
-            <small class="hint" id="taskCityQueueHint"></small>
+      <div class="create-form-wrap">
+        <div class="create-form">
+          <h3>Yeni Görev Aç</h3>
+          <div class="field-row">
+            <div class="field">
+              <label>Adliye / İl</label>
+              <input type="text" id="taskCity" placeholder="Ankara Adliyesi">
+              <small class="hint" id="taskCityQueueHint"></small>
+            </div>
+            <div class="field">
+              <label>Görev Türü</label>
+              <select id="taskType">
+                <option value="">Görev türü seçiniz</option>
+                <option>Duruşmaya Katılım</option>
+                <option>Keşif İşlemi</option>
+                <option>Tebligat / Evrak Teslimi</option>
+                <option>İcra Dosyası İşlemi (Haciz)</option>
+                <option>Cezaevi / Müvekkil Görüşmesi</option>
+                <option>Arabuluculuk Toplantısı</option>
+                <option>Dosya İnceleme / Suret Çıkarma</option>
+                <option>Diğer</option>
+              </select>
+            </div>
           </div>
-          <div class="field"><label>Son Tarih</label><input type="date" id="taskDate"></div>
+          <div class="field-row">
+            <div class="field"><label>Görevin Yapılacağı Tarih</label><input type="date" id="taskDate"></div>
+            <div class="field"><label>Görev Saati (opsiyonel)</label><input type="time" id="taskTime"></div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Görev Bütçesi</label>
+              <select id="taskBudget">
+                <option value="">Belirtilmedi</option>
+                <option>250 TL ve altı</option>
+                <option>250 - 500 TL</option>
+                <option>500 - 1000 TL</option>
+                <option>1000 - 2000 TL</option>
+                <option>2000 TL ve üzeri</option>
+                <option>Pazarlıkla</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="field-label-row">
+                <label style="margin-bottom:0;">Adliye Dışı İşlem mi?</label>
+                <label class="switch">
+                  <input type="checkbox" id="taskOffSite">
+                  <span class="switch-track"></span>
+                </label>
+              </div>
+              <input type="text" id="taskOffSiteAddress" placeholder="Adresi giriniz" style="display:none; margin-top:8px;">
+            </div>
+          </div>
+          <div class="field"><label>Başlık</label><input type="text" id="taskTitle" placeholder="Duruşmaya katılım / evrak teslimi..."></div>
+          <div class="field">
+            <div class="field-label-row">
+              <label style="margin-bottom:0;">Açıklama</label>
+              <select id="taskQuickDesc" class="quick-desc-select">
+                <option value="">Hazır Açıklamalar</option>
+                <option value="Dosya numarasını ve duruşma saatini paylaşacağım, katılım sağlamanız yeterli.">Duruşma katılımı</option>
+                <option value="Evrakları teslim alıp ilgili birime iletmeniz gerekmektedir.">Evrak teslimi</option>
+                <option value="Müvekkille görüşüp tutanak tutmanız yeterlidir.">Müvekkil görüşmesi</option>
+                <option value="Dosyayı inceleyip talep edilen suretleri çıkarmanız yeterlidir.">Dosya inceleme</option>
+              </select>
+            </div>
+            <textarea id="taskDesc" placeholder="Dosya no, mahkeme, yapılması gerekenler..."></textarea>
+          </div>
+          <button class="small-btn solid" onclick="createTask()">Görevi Yayınla</button>
         </div>
-        <div class="field"><label>Başlık</label><input type="text" id="taskTitle" placeholder="Duruşmaya katılım / evrak teslimi..."></div>
-        <div class="field"><label>Açıklama</label><textarea id="taskDesc" placeholder="Dosya no, mahkeme, yapılması gerekenler..."></textarea></div>
-        <button class="small-btn solid" onclick="createTask()">Görevi Yayınla</button>
+        <div class="create-tips">
+          <div class="create-tips-icon">💡</div>
+          <h4>İpuçları</h4>
+          <p>Adliye dışı işlemleriniz (adres bazlı görüşme, keşif vb.) için "Adliye Dışı İşlem mi?" seçeneğini açıp adresi giriniz.</p>
+          <p>Görev türü ve bütçe bilgisi paylaşmanız, meslektaşlarınızın görevi hızlıca değerlendirmesine yardımcı olur.</p>
+          <p>Açıklama alanında sık kullandığınız metinler için "Hazır Açıklamalar" menüsünü kullanabilirsiniz.</p>
+        </div>
       </div>
       <div class="panel-grid" id="openTasksList"></div>
     </div>
