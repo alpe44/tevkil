@@ -122,6 +122,29 @@ if (taskQuickDescSelect) {
   });
 }
 
+/** Görev Panosu'ndaki "+ Görev Ver" butonu: Panelim'in "Yeni Görev Aç" formuna yönlendirir. */
+function goToCreateTask() {
+  if (!currentUser) {
+    switchView('auth');
+    setAuthTab('login');
+    showToast('Görev açmak için giriş yapmalısınız.');
+    return;
+  }
+  if (currentUser.status !== 'approved') {
+    showToast('Hesabınız admin onayı bekliyor, görev açamazsınız.');
+    return;
+  }
+  switchView('panel');
+  document.querySelectorAll('.ptab[data-ptab]').forEach((b) => b.classList.toggle('active', b.dataset.ptab === 'open'));
+  ['open', 'mine', 'taken', 'profile'].forEach((k) => {
+    document.getElementById('ptab-' + k).style.display = k === 'open' ? 'block' : 'none';
+  });
+  setTimeout(() => {
+    const el = document.getElementById('taskCity');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
 async function createTask() {
   if (!currentUser) {
     showToast('Görev açmak için giriş yapmalısınız.');
