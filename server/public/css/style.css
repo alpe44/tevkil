@@ -162,6 +162,7 @@ nav.links{display:flex; gap:6px; align-items:center;}
 .hero h1 .line:nth-child(3) > span{animation-delay:.31s;}
 @keyframes lineUp{ to{ transform:translateY(0); opacity:1; } }
 .hero p.lead{font-size:16.5px; color:var(--muted); max-width:480px; margin-bottom:34px; line-height:1.65;}
+.hero p.lead b{color:var(--brass-bright); font-weight:600;}
 .hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
 
 /* docket board — signature element */
