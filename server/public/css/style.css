@@ -183,27 +183,27 @@ nav.links{display:flex; gap:6px; align-items:center;}
 
 /* docket board — signature element */
 .docket{
-  background:var(--paper); color:var(--text-dark); border-radius:6px;
-  padding:0; overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,0.5);
-  border:1px solid var(--paper-2);
+  background:var(--ink-2); color:var(--paper); border-radius:6px;
+  padding:0; overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
+  border:1px solid var(--line);
 }
 .docket-head{
   padding:16px 20px; border-bottom:1px dashed var(--brass-deep);
   display:flex; justify-content:space-between; align-items:center;
-  background:var(--paper-2);
+  background:var(--ink-3);
 }
-.docket-head .t{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--brass-deep); font-weight:600;}
-.live-pill{display:flex; align-items:center; gap:6px; font-size:10.5px; font-family:'JetBrains Mono',monospace; color:var(--seal);}
-.live-pill .p{width:6px; height:6px; border-radius:50%; background:var(--seal); animation:pulse 1.6s infinite;}
+.docket-head .t{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--brass-bright); font-weight:600;}
+.live-pill{display:flex; align-items:center; gap:6px; font-size:10.5px; font-family:'JetBrains Mono',monospace; color:var(--seal-bright);}
+.live-pill .p{width:6px; height:6px; border-radius:50%; background:var(--seal-bright); animation:pulse 1.6s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
 .docket-list{max-height:340px; overflow:hidden;}
 .docket-item{
-  padding:14px 20px; border-bottom:1px solid var(--paper-2);
+  padding:14px 20px; border-bottom:1px solid var(--line);
   display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
 }
-.docket-item .city{font-family:'Fraunces',serif; font-weight:600; font-size:15px;}
-.docket-item .desc{font-size:12.5px; color:var(--muted-dark); margin-top:3px;}
-.docket-item .time{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--seal); white-space:nowrap; margin-top:2px;}
+.docket-item .city{font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--paper);}
+.docket-item .desc{font-size:12.5px; color:var(--muted); margin-top:3px;}
+.docket-item .time{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--seal-bright); white-space:nowrap; margin-top:2px;}
 
 /* section shells */
 section{max-width:1180px; margin:0 auto; padding:80px 28px;}
