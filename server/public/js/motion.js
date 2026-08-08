@@ -38,7 +38,7 @@
   let ticking = false;
   function update() {
     const angle = window.scrollY * 0.18;
-    el.style.transform = 'translateY(-50%) rotate(' + angle + 'deg)';
+    el.style.transform = 'rotate(' + angle + 'deg)';
     ticking = false;
   }
   window.addEventListener(
