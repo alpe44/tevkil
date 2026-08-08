@@ -82,6 +82,7 @@ const create = asyncHandler(async (req, res) => {
 });
 
 const accept = asyncHandler(async (req, res) => {
+  if (!handleValidation(req, res)) return;
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: 'Geçersiz görev id.' });
 
@@ -94,7 +95,8 @@ const accept = asyncHandler(async (req, res) => {
     return res.status(409).json({ error: 'Bu görev artık uygun değil (başka biri üstlenmiş olabilir).' });
   }
 
-  const task = await taskModel.acceptTask(id, req.user.id);
+  const { phone, contactAddress, note } = req.body;
+  const task = await taskModel.acceptTask(id, req.user.id, { phone, contactAddress, note });
   if (!task) {
     return res.status(409).json({ error: 'Bu görev artık uygun değil (başka biri üstlenmiş olabilir).' });
   }

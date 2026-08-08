@@ -1,20 +1,20 @@
 const { query } = require('../config/db');
 
 const PUBLIC_COLUMNS = `
-  id, full_name, email, bar_association, bar_registry_no, province, courthouse,
+  id, full_name, email, phone, bar_association, bar_registry_no, province, courthouse,
   bio, role, status, rating_avg, completed_count, created_count, created_at, approved_at,
   avatar_status, avatar_uploaded_at, avatar_rejection_reason
 `;
 
-async function createUser({ fullName, email, passwordHash, barAssociation, barRegistryNo, province, courthouse, bio, avatarFilename }) {
+async function createUser({ fullName, email, passwordHash, phone, barAssociation, barRegistryNo, province, courthouse, bio, avatarFilename }) {
   const { rows } = await query(
     `INSERT INTO users
-      (full_name, email, password_hash, bar_association, bar_registry_no, province, courthouse, bio,
+      (full_name, email, password_hash, phone, bar_association, bar_registry_no, province, courthouse, bio,
        avatar_filename, avatar_status, avatar_uploaded_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${avatarFilename ? 'now()' : 'NULL'})
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${avatarFilename ? 'now()' : 'NULL'})
      RETURNING ${PUBLIC_COLUMNS}`,
     [
-      fullName, email, passwordHash, barAssociation, barRegistryNo, province, courthouse, bio || null,
+      fullName, email, passwordHash, phone, barAssociation, barRegistryNo, province, courthouse, bio || null,
       avatarFilename || null, avatarFilename ? 'pending' : 'none',
     ]
   );

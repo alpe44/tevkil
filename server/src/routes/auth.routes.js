@@ -10,6 +10,12 @@ const router = Router();
 const registerRules = [
   body('fullName').trim().isLength({ min: 3, max: 150 }).withMessage('Ad soyad giriniz.'),
   body('email').trim().isEmail().withMessage('Geçerli bir e-posta giriniz.'),
+  body('phone')
+    .trim()
+    .notEmpty()
+    .withMessage('Telefon numarası giriniz.')
+    .matches(/^[0-9+()\s-]{10,20}$/)
+    .withMessage('Geçerli bir telefon numarası giriniz.'),
   body('password')
     .isLength({ min: 8 })
     .withMessage('Şifre en az 8 karakter olmalı.')

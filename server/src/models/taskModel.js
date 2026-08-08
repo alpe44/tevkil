@@ -4,6 +4,7 @@ const BASE_SELECT = `
   SELECT
     t.id, t.title, t.description, t.city, t.due_date, t.status, t.rating,
     t.created_at, t.assigned_at, t.completed_at,
+    t.acceptance_phone, t.acceptance_contact, t.acceptance_note,
     t.owner_id, ou.full_name AS owner_name,
     t.assignee_id, au.full_name AS assignee_name
   FROM tasks t
@@ -44,13 +45,14 @@ async function listByAssignee(assigneeId) {
  * Atomik kabul: satır yalnızca hâlâ 'open' ise VE görev sahibi kabul eden kişi değilse güncellenir.
  * İki avukat aynı anda kabul etmeye çalışırsa sadece biri UPDATE'i "kazanır" (yarış durumuna karşı korumalı).
  */
-async function acceptTask(taskId, assigneeId) {
+async function acceptTask(taskId, assigneeId, { phone, contactAddress, note } = {}) {
   const { rows } = await query(
     `UPDATE tasks
-        SET status = 'assigned', assignee_id = $2, assigned_at = now()
+        SET status = 'assigned', assignee_id = $2, assigned_at = now(),
+            acceptance_phone = $3, acceptance_contact = $4, acceptance_note = $5
       WHERE id = $1 AND status = 'open' AND owner_id <> $2
       RETURNING id`,
-    [taskId, assigneeId]
+    [taskId, assigneeId, phone || null, contactAddress || null, note || null]
   );
   return rows.length ? findById(taskId) : null;
 }

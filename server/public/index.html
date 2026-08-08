@@ -240,7 +240,10 @@
           <div class="field"><label>İl</label><input type="text" id="regIl" placeholder="İzmir"></div>
           <div class="field"><label>Adliye</label><input type="text" id="regAdliye" placeholder="İzmir Adliyesi"></div>
         </div>
-        <div class="field"><label>E-posta</label><input type="email" id="regEmail" placeholder="ornek@baro.org.tr" autocomplete="username"></div>
+        <div class="field-row">
+          <div class="field"><label>E-posta</label><input type="email" id="regEmail" placeholder="ornek@baro.org.tr" autocomplete="username"></div>
+          <div class="field"><label>Telefon</label><input type="tel" id="regPhone" placeholder="05XX XXX XX XX" autocomplete="tel"></div>
+        </div>
         <div class="field-row">
           <div class="field"><label>Şifre</label><input type="password" id="regPassword" placeholder="En az 8 karakter" autocomplete="new-password"></div>
           <div class="field"><label>Şifre (Tekrar)</label><input type="password" id="regPasswordConfirm" placeholder="Tekrar girin" autocomplete="new-password"></div>
@@ -337,6 +340,22 @@
     </div>
 
     <div class="panel-grid" id="adminUsersList"></div>
+  </div>
+</div>
+
+<!-- Accept task modal -->
+<div class="modal-bg" id="acceptModal">
+  <div class="modal">
+    <h3>Görevi kabul et</h3>
+    <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Görev sahibine iletilmek üzere iletişim ve tevkil bilgilerinizi girin — bu bilgiler kabul ettiğinizde kendisine mail olarak gönderilir.</p>
+    <div class="err-msg" id="acceptErr"></div>
+    <div class="field"><label>Telefon</label><input type="tel" id="acceptPhone" placeholder="05XX XXX XX XX"></div>
+    <div class="field"><label>İletişim Adresi</label><input type="text" id="acceptContact" placeholder="Adres / e-posta / diğer iletişim bilgisi"></div>
+    <div class="field"><label>Tevkil ile İlgili Bilgiler</label><textarea id="acceptNote" placeholder="Dosya no, duruşma saati, müvekkil bilgisi, yapılması gerekenler..."></textarea></div>
+    <div class="modal-actions">
+      <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeAcceptModal()">Vazgeç</button>
+      <button class="cta-btn" onclick="submitAcceptTask()">Gönder ve Kabul Et</button>
+    </div>
   </div>
 </div>
 

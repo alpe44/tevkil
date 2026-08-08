@@ -14,6 +14,17 @@ const createRules = [
 
 const completeRules = [body('rating').isInt({ min: 1, max: 5 }).withMessage('1 ile 5 arası bir puan giriniz.')];
 
+const acceptRules = [
+  body('phone')
+    .trim()
+    .notEmpty()
+    .withMessage('Telefon numarası giriniz.')
+    .matches(/^[0-9+()\s-]{10,20}$/)
+    .withMessage('Geçerli bir telefon numarası giriniz.'),
+  body('contactAddress').trim().notEmpty().withMessage('İletişim adresi giriniz.'),
+  body('note').trim().notEmpty().withMessage('Tevkil ile ilgili bilgileri giriniz.'),
+];
+
 // Herkese açık: açık görevleri görebilmek için giriş şart değil (Görev Panosu).
 router.get('/open', taskController.listOpen);
 
@@ -21,7 +32,7 @@ router.get('/queue', requireAuth, requireApproved, taskController.queueForCourth
 router.get('/mine', requireAuth, requireApproved, taskController.listMine);
 router.get('/taken', requireAuth, requireApproved, taskController.listTaken);
 router.post('/', requireAuth, requireApproved, createRules, taskController.create);
-router.post('/:id/accept', requireAuth, requireApproved, taskController.accept);
+router.post('/:id/accept', requireAuth, requireApproved, acceptRules, taskController.accept);
 router.post('/:id/complete', requireAuth, requireApproved, completeRules, taskController.complete);
 
 module.exports = router;

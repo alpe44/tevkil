@@ -48,7 +48,13 @@ async function notifyTaskAccepted(task) {
   await mailer.sendMail({
     to: owner.email,
     subject: '[Nöbetçi] ' + title,
-    text: 'Merhaba ' + owner.full_name + ',\n\n"' + task.title + '" görevinizi ' + task.assignee_name + ' üstlendi.\nİletişim bilgileri panelinizde görünür.\n',
+    text:
+      'Merhaba ' + owner.full_name + ',\n\n' +
+      '"' + task.title + '" görevinizi ' + task.assignee_name + ' üstlendi.\n\n' +
+      'Üstlenen meslektaşınızın ilettiği bilgiler:\n' +
+      'Telefon: ' + (task.acceptance_phone || '—') + '\n' +
+      'İletişim Adresi: ' + (task.acceptance_contact || '—') + '\n' +
+      'Tevkil ile İlgili Bilgiler: ' + (task.acceptance_note || '—') + '\n',
   });
 }
 

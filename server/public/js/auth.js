@@ -188,6 +188,7 @@ async function handleRegister() {
   const province = document.getElementById('regIl').value.trim();
   const courthouse = document.getElementById('regAdliye').value.trim();
   const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
   const password = document.getElementById('regPassword').value;
   const passwordConfirm = document.getElementById('regPasswordConfirm').value;
   const bio = document.getElementById('regBio').value.trim();
@@ -196,7 +197,7 @@ async function handleRegister() {
   errEl.style.display = 'none';
   okEl.style.display = 'none';
 
-  if (!fullName || !barAssociation || !barRegistryNo || !province || !courthouse || !email || !password) {
+  if (!fullName || !barAssociation || !barRegistryNo || !province || !courthouse || !email || !phone || !password) {
     errEl.textContent = 'Lütfen tüm zorunlu alanları doldurun.';
     errEl.style.display = 'block';
     return;
@@ -220,11 +221,12 @@ async function handleRegister() {
       payload.append('province', province);
       payload.append('courthouse', courthouse);
       payload.append('email', email);
+      payload.append('phone', phone);
       payload.append('password', password);
       if (bio) payload.append('bio', bio);
       payload.append('avatar', avatarFile);
     } else {
-      payload = { fullName, barAssociation, barRegistryNo, province, courthouse, email, password, bio };
+      payload = { fullName, barAssociation, barRegistryNo, province, courthouse, email, phone, password, bio };
     }
     const { message } = await api.register(payload);
     okEl.textContent = message + ' Onaylandığınızda aynı e-posta/şifre ile giriş yapabilirsiniz.';

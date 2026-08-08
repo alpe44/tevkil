@@ -116,19 +116,49 @@ async function createTask() {
   }
 }
 
-async function acceptTask(id) {
+let acceptModalTaskId = null;
+
+function openAcceptTaskModal(id) {
   if (!currentUser) {
     showToast('Görevi kabul etmek için giriş yapmalısınız.');
     switchView('auth');
     return;
   }
+  acceptModalTaskId = id;
+  document.getElementById('acceptPhone').value = '';
+  document.getElementById('acceptContact').value = '';
+  document.getElementById('acceptNote').value = '';
+  document.getElementById('acceptErr').style.display = 'none';
+  document.getElementById('acceptModal').classList.add('active');
+}
+
+function closeAcceptModal() {
+  document.getElementById('acceptModal').classList.remove('active');
+  acceptModalTaskId = null;
+}
+
+async function submitAcceptTask() {
+  const errEl = document.getElementById('acceptErr');
+  errEl.style.display = 'none';
+  const phone = document.getElementById('acceptPhone').value.trim();
+  const contactAddress = document.getElementById('acceptContact').value.trim();
+  const note = document.getElementById('acceptNote').value.trim();
+
+  if (!phone || !contactAddress || !note) {
+    errEl.textContent = 'Telefon, iletişim adresi ve tevkil bilgileri zorunludur.';
+    errEl.style.display = 'block';
+    return;
+  }
+
   try {
-    await api.acceptTask(id);
-    showToast('Görevi üstlendiniz. İletişim bilgileri görev sahibiyle paylaşıldı.');
+    await api.acceptTask(acceptModalTaskId, { phone, contactAddress, note });
+    closeAcceptModal();
+    showToast('Görevi üstlendiniz. Bilgileriniz görev sahibine mail olarak gönderildi.');
     renderPanel();
     renderBoard();
   } catch (e) {
-    showToast(e.message);
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
   }
 }
 
@@ -194,7 +224,7 @@ function taskCardHTML(t, opts = {}) {
   if (opts.mode === 'board' || opts.mode === 'open') {
     if (t.status === 'open') {
       actionBtn = currentUser
-        ? '<button class="small-btn solid" onclick="acceptTask(' + t.id + ')">Görevi Al</button>'
+        ? '<button class="small-btn solid" onclick="openAcceptTaskModal(' + t.id + ')">Görevi Al</button>'
         : '<button class="small-btn" onclick="switchView(\'auth\')">Almak için giriş yap</button>';
     }
   }
