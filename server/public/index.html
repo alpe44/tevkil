@@ -249,6 +249,13 @@
           <div class="field"><label>Şifre (Tekrar)</label><input type="password" id="regPasswordConfirm" placeholder="Tekrar girin" autocomplete="new-password"></div>
         </div>
         <div class="field"><label>Hakkımda (opsiyonel)</label><textarea id="regBio" placeholder="Uzmanlık alanlarınız, deneyiminiz..."></textarea></div>
+        <div class="field" style="display:flex; align-items:flex-start; gap:8px;">
+          <input type="checkbox" id="regKvkkConsent" style="margin-top:3px; width:auto;">
+          <label for="regKvkkConsent" style="font-weight:400; font-size:13px; text-transform:none; letter-spacing:0; line-height:1.5; color:var(--text-dark);">
+            <a href="/gizlilik.html#aydinlatma" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum ve
+            <a href="/gizlilik.html#riza" target="_blank">Açık Rıza Metni</a> kapsamında kişisel verilerimin işlenmesine rıza gösteriyorum.
+          </label>
+        </div>
         <button class="submit-btn" id="registerBtn" onclick="handleRegister()">Kayıt Ol ve Doğrulama Bekle</button>
         <p class="form-note">Kayıt sonrası hesabınız "onay bekliyor" durumunda oluşturulur. Admin, baro sicil bilgilerinizi doğruladıktan sonra hesabınızı onaylar ve giriş yapabilirsiniz.</p>
       </div>

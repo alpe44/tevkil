@@ -28,6 +28,9 @@ const registerRules = [
   body('province').trim().notEmpty().withMessage('İl giriniz.'),
   body('courthouse').trim().notEmpty().withMessage('Adliye giriniz.'),
   body('bio').optional({ checkFalsy: true }).isLength({ max: 2000 }),
+  body('kvkkConsent')
+    .custom((value) => value === true || value === 'true')
+    .withMessage('KVKK Aydınlatma Metni\'ni okuyup açık rıza vermeniz gerekiyor.'),
 ];
 
 const loginRules = [

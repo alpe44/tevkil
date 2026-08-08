@@ -192,6 +192,7 @@ async function handleRegister() {
   const password = document.getElementById('regPassword').value;
   const passwordConfirm = document.getElementById('regPasswordConfirm').value;
   const bio = document.getElementById('regBio').value.trim();
+  const kvkkConsent = document.getElementById('regKvkkConsent').checked;
   const errEl = document.getElementById('regErr');
   const okEl = document.getElementById('regOk');
   errEl.style.display = 'none';
@@ -199,6 +200,11 @@ async function handleRegister() {
 
   if (!fullName || !barAssociation || !barRegistryNo || !province || !courthouse || !email || !phone || !password) {
     errEl.textContent = 'Lütfen tüm zorunlu alanları doldurun.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!kvkkConsent) {
+    errEl.textContent = 'Devam etmek için KVKK Aydınlatma Metni\'ni okuyup açık rıza kutucuğunu işaretlemeniz gerekiyor.';
     errEl.style.display = 'block';
     return;
   }
@@ -223,15 +229,17 @@ async function handleRegister() {
       payload.append('email', email);
       payload.append('phone', phone);
       payload.append('password', password);
+      payload.append('kvkkConsent', 'true');
       if (bio) payload.append('bio', bio);
       payload.append('avatar', avatarFile);
     } else {
-      payload = { fullName, barAssociation, barRegistryNo, province, courthouse, email, phone, password, bio };
+      payload = { fullName, barAssociation, barRegistryNo, province, courthouse, email, phone, password, bio, kvkkConsent };
     }
     const { message } = await api.register(payload);
     okEl.textContent = message + ' Onaylandığınızda aynı e-posta/şifre ile giriş yapabilirsiniz.';
     okEl.style.display = 'block';
     document.getElementById('registerForm').querySelectorAll('input, textarea').forEach((el) => (el.value = ''));
+    document.getElementById('regKvkkConsent').checked = false;
     resetRegAvatarPicker();
   } catch (e) {
     errEl.textContent = e.message;

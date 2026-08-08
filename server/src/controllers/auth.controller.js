@@ -98,6 +98,7 @@ const register = asyncHandler(async (req, res) => {
     email: normalizedEmail,
     passwordHash,
     phone: phone.trim(),
+    kvkkConsentAt: new Date(),
     barAssociation: barAssociation.trim(),
     barRegistryNo: barRegistryNo.trim(),
     province: province.trim(),
