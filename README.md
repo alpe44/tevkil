@@ -114,8 +114,9 @@ UPDATE users
 
 ## Bilinen sınırlamalar
 
-- "Adil sıra" bildirim gönderim önceliğini belirler ama görev kabulü hâlâ ilk tıklayan kazanır
-  (gerçek zamanlı, tek kişiye özel sıralı teklif sistemi değil — bilinçli bir basitleştirme).
+- "Adil sıra" hem bildirim gönderim önceliğini belirler hem de kabul hakkını kısıtlar: görev
+  açıldıktan sonraki ilk 10 dakika, o adliyedeki sırada en önde olan kişiye münhasırdır; süre
+  dolunca (veya sırada kimse yoksa) herkese açılır. Sıradaki kişi cevap vermezse görev boşta kalmaz.
 - Gerçek push bildirimi (tarayıcı Web Push / VAPID) yok; bildirimler in-app (30 sn polling) + e-posta ile gidiyor.
 - SMTP yapılandırılmadan e-postalar gerçekten gönderilmez, sadece sunucu konsoluna yazdırılır.
 - `express-rate-limit` varsayılan olarak `req.ip` kullanır; reverse proxy arkasında çalıştırırken

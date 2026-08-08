@@ -44,8 +44,9 @@ function serialize(t) {
 
 /**
  * Bir adliyedeki onaylı avukatların "adil sıra" önceliğini gösterir (bkz.
- * userModel.listApprovedByCourthouseInQueueOrder). Görev kabul etmek hâlâ
- * herkese açıktır; bu uç nokta sadece bildirim/gösterim sırasını şeffaf kılar.
+ * userModel.listApprovedByCourthouseInQueueOrder). Bu sıradaki ilk kişi, görev
+ * açıldıktan sonraki ilk PRIORITY_WINDOW_MS boyunca kabul için önceliklidir
+ * (bkz. accept()); bu uç nokta o sırayı şeffaf şekilde önceden gösterir.
  */
 const queueForCourthouse = asyncHandler(async (req, res) => {
   const courthouse = (req.query.courthouse || '').trim();
@@ -92,6 +93,12 @@ const create = asyncHandler(async (req, res) => {
   res.status(201).json({ message: 'Görev yayınlandı.', task: serialize(task) });
 });
 
+// Görev açıldıktan sonra ilk PRIORITY_WINDOW_MS süresince, o adliyedeki adil sırada
+// en önde olan (en az görev almış/en uzun süredir almamış) kişiye münhasıran açık kalır;
+// böylece bildirim aynı anda herkese gitse de aynı kişi sürekli ilk tıklayıp göreve
+// tekel oluşturamaz. Süre dolunca (sıradaki kişi cevap vermezse) herkese açılır.
+const PRIORITY_WINDOW_MS = 10 * 60 * 1000; // 10 dakika
+
 const accept = asyncHandler(async (req, res) => {
   if (!handleValidation(req, res)) return;
   const id = Number(req.params.id);
@@ -104,6 +111,22 @@ const accept = asyncHandler(async (req, res) => {
   }
   if (existing.status !== 'open') {
     return res.status(409).json({ error: 'Bu görev artık uygun değil (başka biri üstlenmiş olabilir).' });
+  }
+
+  const elapsedMs = Date.now() - new Date(existing.created_at).getTime();
+  if (elapsedMs < PRIORITY_WINDOW_MS) {
+    const queue = await userModel.listApprovedByCourthouseInQueueOrder(existing.city, {
+      excludeUserId: existing.owner_id,
+    });
+    const priorityUser = queue[0];
+    if (priorityUser && priorityUser.id !== req.user.id) {
+      const remainingMin = Math.max(1, Math.ceil((PRIORITY_WINDOW_MS - elapsedMs) / 60000));
+      return res.status(403).json({
+        error:
+          'Bu görev şu an yalnızca adil sıradaki meslektaşınıza açık. ' +
+          remainingMin + ' dakika sonra herkese açılacak.',
+      });
+    }
   }
 
   const { phone, contactAddress, note } = req.body;
