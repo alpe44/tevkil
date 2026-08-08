@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tevkil-agi-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tevkil_agi
+    ports:
+      - "5432:5432"
+    volumes:
+      - tevkil_agi_pgdata:/var/lib/postgresql/data
+
+volumes:
+  tevkil_agi_pgdata:

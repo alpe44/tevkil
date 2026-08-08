@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)file:///C:/Users/excal%C4%B1bur/Downloads/tevkil-agi_1.html -->
+<html lang="tr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nöbetçi — Avukatlar Arası Tevkil Ağı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./Nöbetçi — Avukatlar Arası Tevkil Ağı_files/css2" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A2B;
+    --ink-2:#16233C;
+    --ink-3:#1E2D48;
+    --paper:#F6F1E7;
+    --paper-2:#EDE4D2;
+    --brass:#B98B3E;
+    --brass-bright:#D4A857;
+    --brass-deep:#8A6423;
+    --seal:#7A2331;
+    --seal-bright:#9C3242;
+    --text-dark:#1B2433;
+    --muted:#8A93A6;
+    --muted-dark:#5B6472;
+    --success:#3F6B4A;
+    --line:rgba(185,139,62,0.25);
+    --radius:2px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',monospace; letter-spacing:0.02em;}
+  h1,h2,h3,.serif{font-family:'Fraunces',serif;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:'Inter',sans-serif; cursor:pointer;}
+  ::selection{background:var(--brass); color:var(--ink);}
+
+  /* ---------- background texture ---------- */
+  .bg-lines{
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.05;
+    background-image: repeating-linear-gradient(180deg, var(--brass) 0px, var(--brass) 1px, transparent 1px, transparent 42px);
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(15,26,43,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-wrap{
+    max-width:1180px; margin:0 auto; padding:18px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .seal-mark{
+    width:38px; height:38px; border-radius:50%;
+    border:1.5px solid var(--brass);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--brass-bright);
+    position:relative;
+  }
+  .seal-mark::after{
+    content:''; position:absolute; inset:-5px; border:1px solid var(--line); border-radius:50%;
+  }
+  .brand-name{font-family:'Fraunces',serif; font-size:20px; font-weight:600; letter-spacing:0.01em;}
+  .brand-sub{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.14em; margin-top:1px;}
+
+  nav.links{display:flex; gap:6px; align-items:center;}
+  .nav-btn{
+    padding:9px 16px; font-size:13.5px; color:var(--paper); opacity:0.75;
+    border:1px solid transparent; border-radius:var(--radius); background:none;
+    transition:all .15s ease;
+  }
+  .nav-btn:hover{opacity:1;}
+  .nav-btn.active{opacity:1; border-color:var(--line); background:var(--ink-2);}
+  .cta-btn{
+    padding:10px 20px; font-size:13.5px; font-weight:600;
+    background:var(--brass); color:var(--ink); border:none; border-radius:var(--radius);
+    transition:background .15s ease;
+  }
+  .cta-btn:hover{background:var(--brass-bright);}
+  .ghost-btn{
+    padding:10px 20px; font-size:13.5px; font-weight:600;
+    background:transparent; color:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+  }
+  .ghost-btn:hover{border-color:var(--brass);}
+
+  .view{display:none; position:relative; z-index:1;}
+  .view.active{display:block;}
+
+  /* ================= LANDING ================= */
+  .hero{
+    max-width:1180px; margin:0 auto; padding:96px 28px 70px;
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:60px; align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--brass-bright); border:1px solid var(--line); padding:6px 12px; border-radius:20px;
+    margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--brass-bright);}
+  .hero h1{font-size:52px; font-weight:600; line-height:1.08; letter-spacing:-0.01em; margin-bottom:22px;}
+  .hero h1 em{font-style:italic; color:var(--brass-bright); font-weight:500;}
+  .hero p.lead{font-size:16.5px; color:var(--muted); max-width:480px; margin-bottom:34px; line-height:1.65;}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
+
+  /* docket board — signature element */
+  .docket{
+    background:var(--paper); color:var(--text-dark); border-radius:6px;
+    padding:0; overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,0.5);
+    border:1px solid var(--paper-2);
+  }
+  .docket-head{
+    padding:16px 20px; border-bottom:1px dashed var(--brass-deep);
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--paper-2);
+  }
+  .docket-head .t{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--brass-deep); font-weight:600;}
+  .live-pill{display:flex; align-items:center; gap:6px; font-size:10.5px; font-family:'JetBrains Mono',monospace; color:var(--seal);}
+  .live-pill .p{width:6px; height:6px; border-radius:50%; background:var(--seal); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+  .docket-list{max-height:340px; overflow:hidden;}
+  .docket-item{
+    padding:14px 20px; border-bottom:1px solid var(--paper-2);
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+  }
+  .docket-item .city{font-family:'Fraunces',serif; font-weight:600; font-size:15px;}
+  .docket-item .desc{font-size:12.5px; color:var(--muted-dark); margin-top:3px;}
+  .docket-item .time{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--seal); white-space:nowrap; margin-top:2px;}
+
+  /* section shells */
+  section{max-width:1180px; margin:0 auto; padding:80px 28px;}
+  .section-head{max-width:640px; margin-bottom:48px;}
+  .section-head .eyebrow{margin-bottom:16px;}
+  .section-head h2{font-size:34px; font-weight:600; line-height:1.2;}
+  .section-head p{color:var(--muted); margin-top:14px; font-size:15.5px; line-height:1.6;}
+
+  .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;}
+  .feat-card{background:var(--ink); padding:32px 28px;}
+  .feat-card .n{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--brass-bright); margin-bottom:16px;}
+  .feat-card h3{font-size:19px; font-weight:600; margin-bottom:10px;}
+  .feat-card p{font-size:14px; color:var(--muted); line-height:1.6;}
+
+  .steps{display:flex; flex-direction:column; border-top:1px solid var(--line);}
+  .step-row{
+    display:grid; grid-template-columns:80px 1fr 1fr; gap:24px;
+    padding:26px 0; border-bottom:1px solid var(--line); align-items:center;
+  }
+  .step-row .num{font-family:'Fraunces',serif; font-size:32px; color:var(--brass); font-weight:500;}
+  .step-row h4{font-size:17px; font-weight:600; margin-bottom:6px;}
+  .step-row p{font-size:13.5px; color:var(--muted);}
+
+  .stats-bar{
+    display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--line); border-radius:4px; overflow:hidden;
+  }
+  .stat{padding:28px 24px; border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat .val{font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:var(--brass-bright);}
+  .stat .lbl{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:6px;}
+
+  .cta-band{
+    max-width:1180px; margin:0 auto 100px; padding:56px 48px;
+    background:linear-gradient(135deg, var(--ink-2), var(--ink-3));
+    border:1px solid var(--line); border-radius:6px;
+    display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;
+  }
+  .cta-band h3{font-size:26px; font-weight:600; max-width:440px; line-height:1.25;}
+
+  footer{border-top:1px solid var(--line); padding:36px 28px; text-align:center;}
+  footer p{font-size:12.5px; color:var(--muted);}
+
+  /* ================= AUTH ================= */
+  .auth-wrap{max-width:460px; margin:70px auto; padding:0 28px;}
+  .auth-card{background:var(--paper); color:var(--text-dark); border-radius:6px; padding:38px; box-shadow:0 30px 60px -20px rgba(0,0,0,0.5);}
+  .auth-card h2{font-size:24px; margin-bottom:6px; font-weight:600;}
+  .auth-card p.sub{font-size:13px; color:var(--muted-dark); margin-bottom:26px;}
+  .tab-switch{display:flex; gap:0; margin-bottom:24px; border-bottom:1px solid var(--paper-2);}
+  .tab-switch button{
+    flex:1; padding:11px; background:none; border:none; font-size:13.5px; font-weight:600; color:var(--muted-dark);
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tab-switch button.active{color:var(--seal); border-bottom-color:var(--seal);}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted-dark); margin-bottom:6px;}
+  .field input, .field select, .field textarea{
+    width:100%; padding:11px 13px; border:1px solid var(--paper-2); border-radius:3px;
+    font-size:14px; background:#fff; color:var(--text-dark); font-family:'Inter',sans-serif;
+  }
+  .field textarea{resize:vertical; min-height:80px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .submit-btn{
+    width:100%; padding:13px; background:var(--seal); color:#fff; border:none; border-radius:3px;
+    font-size:14.5px; font-weight:600; margin-top:6px;
+  }
+  .submit-btn:hover{background:var(--seal-bright);}
+  .form-note{font-size:11.5px; color:var(--muted-dark); margin-top:14px; line-height:1.5;}
+  .err-msg{background:#FBEAEA; color:var(--seal); font-size:12.5px; padding:10px 12px; border-radius:3px; margin-bottom:14px; display:none;}
+
+  /* ================= PANEL ================= */
+  .panel-wrap{max-width:1180px; margin:0 auto; padding:44px 28px 90px;}
+  .panel-top{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px; flex-wrap:wrap; gap:16px;}
+  .panel-top h2{font-size:28px; font-weight:600;}
+  .who{font-size:13px; color:var(--muted);}
+  .who b{color:var(--brass-bright);}
+  .panel-tabs{display:flex; gap:6px; margin:26px 0 28px; border-bottom:1px solid var(--line);}
+  .ptab{padding:10px 4px; margin-right:22px; font-size:13.5px; color:var(--muted); border-bottom:2px solid transparent; background:none;}
+  .ptab.active{color:var(--paper); border-bottom-color:var(--brass);}
+
+  .panel-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+  .task-card{
+    border:1px solid var(--line); border-radius:5px; padding:20px 22px; background:var(--ink-2);
+    display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center;
+  }
+  .task-card .city-tag{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--brass-bright);
+    border:1px solid var(--line); padding:3px 9px; border-radius:14px; margin-bottom:9px; text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .task-card h4{font-size:16.5px; font-weight:600; font-family:'Fraunces',serif; margin-bottom:5px;}
+  .task-card .desc{font-size:13.5px; color:var(--muted); margin-bottom:8px; line-height:1.5;}
+  .task-card .meta{font-size:11.5px; color:var(--muted-dark); font-family:'JetBrains Mono',monospace;}
+  .status-badge{
+    font-size:10.5px; font-family:'JetBrains Mono',monospace; padding:4px 10px; border-radius:12px; text-transform:uppercase; letter-spacing:0.05em;
+    display:inline-block;
+  }
+  .status-open{background:rgba(185,139,62,0.15); color:var(--brass-bright); border:1px solid var(--brass);}
+  .status-assigned{background:rgba(63,107,74,0.15); color:#7CB88B; border:1px solid var(--success);}
+  .status-completed{background:rgba(140,140,140,0.15); color:var(--muted); border:1px solid var(--muted);}
+  .small-btn{
+    padding:9px 16px; font-size:12.5px; font-weight:600; border-radius:3px; border:1px solid var(--brass);
+    background:transparent; color:var(--brass-bright); white-space:nowrap;
+  }
+  .small-btn:hover{background:var(--brass); color:var(--ink);}
+  .small-btn.solid{background:var(--brass); color:var(--ink);}
+  .small-btn.danger{border-color:var(--seal); color:var(--seal-bright);}
+  .empty-state{
+    border:1px dashed var(--line); border-radius:5px; padding:50px 24px; text-align:center; color:var(--muted);
+  }
+  .empty-state h4{font-family:'Fraunces',serif; color:var(--paper); font-size:18px; margin-bottom:8px;}
+
+  .create-form{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:5px; padding:26px; margin-bottom:30px;
+  }
+  .create-form h3{font-size:16px; margin-bottom:16px; font-family:'Fraunces',serif;}
+  .create-form .field label{color:var(--muted);}
+  .create-form .field input, .create-form .field select, .create-form .field textarea{
+    background:var(--ink); border:1px solid var(--line); color:var(--paper);
+  }
+
+  .profile-card{background:var(--ink-2); border:1px solid var(--line); border-radius:5px; padding:28px; margin-bottom:24px;}
+  .profile-head{display:flex; gap:18px; align-items:center; margin-bottom:20px;}
+  .avatar-ring{width:60px; height:60px; border-radius:50%; border:1.5px solid var(--brass); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-size:22px; color:var(--brass-bright);}
+  .profile-head h3{font-size:20px; font-weight:600;}
+  .profile-head .sub{font-size:12.5px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+  .profile-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;}
+  .profile-stats .ps{background:var(--ink); padding:16px; text-align:center;}
+  .profile-stats .ps .v{font-family:'Fraunces',serif; font-size:22px; color:var(--brass-bright);}
+  .profile-stats .ps .l{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:4px;}
+
+  .stars{color:var(--brass-bright); font-size:14px; letter-spacing:2px;}
+  .star-picker{display:flex; gap:6px; margin:8px 0 14px;}
+  .star-picker button{background:none; border:none; font-size:22px; color:var(--paper-2); opacity:0.5;}
+  .star-picker button.picked{opacity:1; color:var(--brass);}
+
+  .modal-bg{
+    display:none; position:fixed; inset:0; background:rgba(10,16,28,0.7); z-index:100;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-bg.active{display:flex;}
+  .modal{background:var(--paper); color:var(--text-dark); border-radius:6px; padding:30px; max-width:420px; width:100%;}
+  .modal h3{font-family:'Fraunces',serif; font-size:19px; margin-bottom:14px;}
+  .modal-actions{display:flex; gap:10px; margin-top:20px;}
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); z-index:200;
+    background:var(--ink-2); border:1px solid var(--brass); color:var(--paper); padding:13px 22px; border-radius:5px;
+    font-size:13.5px; opacity:0; transition:all .25s ease; pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr; padding-top:60px;}
+    .hero h1{font-size:38px;}
+    .feat-grid{grid-template-columns:1fr;}
+    .stats-bar{grid-template-columns:repeat(2,1fr);}
+    .stat:nth-child(2){border-right:none;}
+    .step-row{grid-template-columns:1fr; gap:6px;}
+    .task-card{grid-template-columns:1fr;}
+    .task-card .small-btn, .task-card > div:last-child{justify-self:start;}
+    .field-row{grid-template-columns:1fr;}
+    .nav-wrap{flex-wrap:wrap; gap:12px;}
+    nav.links{order:3; width:100%; overflow-x:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="bg-lines"></div>
+
+<header>
+  <div class="nav-wrap">
+    <div class="brand">
+      <div class="seal-mark">N</div>
+      <div>
+        <div class="brand-name">Nöbetçi</div>
+        <div class="brand-sub">Tevkil Dayanışma Ağı</div>
+      </div>
+    </div>
+    <nav class="links">
+      <button class="nav-btn active" data-view="landing">Ana Sayfa</button>
+      <button class="nav-btn" data-view="board">Görev Panosu</button>
+      <button class="nav-btn" id="navPanel" data-view="panel">Panelim</button>
+    </nav>
+    <div id="headerAuthArea" style="display:flex; gap:10px;">
+      <button class="ghost-btn" data-view="auth" data-tab="login">Giriş Yap</button>
+      <button class="cta-btn" data-view="auth" data-tab="register">Kayıt Ol</button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= LANDING ================= -->
+<div class="view active" id="view-landing">
+  <div class="hero">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> 81 il · tüm adliyeler</div>
+      <h1>İl dışı işiniz için<br><em>meslektaşınıza</em><br>güvenle tevkil verin.</h1>
+      <p class="lead">Nöbetçi, avukatların birbirine iş yükü paylaşımı yaptığı, şeffaf puanlama ile çalışan bir mesleki dayanışma ağıdır. Görev açın, uygun meslektaşınız kabul etsin, işiniz zamanında görülsün.</p>
+      <div class="hero-ctas">
+        <button class="cta-btn" data-view="auth" data-tab="register">Ücretsiz Kayıt Ol</button>
+        <button class="ghost-btn" data-view="board">Açık Görevlere Göz At</button>
+      </div>
+    </div>
+    <div class="docket">
+      <div class="docket-head">
+        <span class="t">Docket · Güncel Görevler</span>
+        <span class="live-pill"><span class="p"></span>CANLI</span>
+      </div>
+      <div class="docket-list" id="landingDocket"></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> Neden Nöbetçi</div>
+      <h2>Sahadaki güveni dijitale taşıdık.</h2>
+      <p>Baro sicil doğrulaması, adil atama sırası ve karşılıklı puanlama ile kurulmuş bir sistem — kimin görev aldığı, ne kadar hızlı döndüğü şeffaf.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="n">01 — Doğrulama</div>
+        <h3>Baro sicil kontrolü</h3>
+        <p>Her üye kayıt sırasında baro sicil numarası ile beyan verir; ekibimiz onayladıktan sonra hesap aktifleşir.</p>
+      </div>
+      <div class="feat-card">
+        <div class="n">02 — Atama</div>
+        <h3>Adil sıra sistemi</h3>
+        <p>Görevler, o adliyede kayıtlı ve aktif durumdaki meslektaşlara sıra ile bildirilir; kimse sürekli öne geçmez.</p>
+      </div>
+      <div class="feat-card">
+        <div class="n">03 — İtibar</div>
+        <h3>Karşılıklı puanlama</h3>
+        <p>Her tamamlanan görev sonrası iki taraf da puanlanır. Profiliniz, geçmiş performansınızı taşır.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> Nasıl Çalışır</div>
+      <h2>Dört adımda görevlendirme.</h2>
+    </div>
+    <div class="steps">
+      <div class="step-row">
+        <div class="num">1</div>
+        <h4>Görev açın</h4>
+        <p>İl dışı işiniz için adliye, iş türü ve tarih belirterek görevi yayınlayın.</p>
+      </div>
+      <div class="step-row">
+        <div class="num">2</div>
+        <h4>Bildirim gider</h4>
+        <p>İlgili adliyede kayıtlı, aktif durumdaki meslektaşlarınıza anında bildirim ulaşır.</p>
+      </div>
+      <div class="step-row">
+        <div class="num">3</div>
+        <h4>Kabul edilir</h4>
+        <p>Sıradaki uygun meslektaşınız görevi kabul eder, iletişim bilgileri karşılıklı görünür olur.</p>
+      </div>
+      <div class="step-row">
+        <div class="num">4</div>
+        <h4>Tamamlanır, puanlanır</h4>
+        <p>İş bitince görevi kapatır, birbirinizi puanlarsınız. Geçmiş, profilinizde arşivlenir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="stats-bar">
+      <div class="stat"><div class="val" id="statLawyers">0</div><div class="lbl">Kayıtlı Avukat</div></div>
+      <div class="stat"><div class="val" id="statTasks">0</div><div class="lbl">Toplam Görev</div></div>
+      <div class="stat"><div class="val" id="statDone">0</div><div class="lbl">Tamamlanan</div></div>
+      <div class="stat">81</div>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <h3>Meslektaşlarınız şu an görev bekliyor olabilir.</h3>
+    <div style="display:flex; gap:12px;">
+      <button class="cta-btn" data-view="auth" data-tab="register">Hemen Katıl</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>Nöbetçi — Avukatlar Arası Tevkil ve Dayanışma Ağı Prototipi. Bu bir tasarım/işlev demosudur; gerçek hizmet değildir.</p>
+  </footer>
+</div>
+
+<!-- ================= BOARD (public, read-only-ish) ================= -->
+<div class="view" id="view-board">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Görev Panosu</h2>
+      <span class="who">Tüm açık görevleri görebilirsiniz. Kabul etmek için giriş yapmalısınız.</span>
+    </div>
+    <div class="panel-grid" id="boardList"></div>
+  </div>
+</div>
+
+<!-- ================= AUTH ================= -->
+<div class="view" id="view-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="tab-switch">
+        <button id="tabLogin" class="active">Giriş Yap</button>
+        <button id="tabRegister">Kayıt Ol</button>
+      </div>
+
+      <div id="loginForm">
+        <h2>Tekrar hoş geldiniz</h2>
+        <p class="sub">Kayıtlı e-posta adresinizle giriş yapın.</p>
+        <div class="err-msg" id="loginErr"></div>
+        <div class="field"><label>E-posta</label><input type="email" id="loginEmail" placeholder="ornek@baro.org.tr"></div>
+        <button class="submit-btn" onclick="handleLogin()">Giriş Yap</button>
+        <p class="form-note">Bu bir prototip olduğundan şifre alanı bulunmuyor; e-posta ile demo girişi yapılır.</p>
+      </div>
+
+      <div id="registerForm" style="display:none;">
+        <h2>Aramıza katılın</h2>
+        <p class="sub">Baro sicil bilgilerinizle üyelik oluşturun.</p>
+        <div class="err-msg" id="regErr"></div>
+        <div class="field"><label>Ad Soyad</label><input type="text" id="regName" placeholder="Av. Ayşe Yılmaz"></div>
+        <div class="field-row">
+          <div class="field"><label>Baro</label><input type="text" id="regBaro" placeholder="İzmir Barosu"></div>
+          <div class="field"><label>Sicil No</label><input type="text" id="regSicil" placeholder="12345"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>İl</label><input type="text" id="regIl" placeholder="İzmir"></div>
+          <div class="field"><label>Adliye</label><input type="text" id="regAdliye" placeholder="İzmir Adliyesi"></div>
+        </div>
+        <div class="field"><label>E-posta</label><input type="email" id="regEmail" placeholder="ornek@baro.org.tr"></div>
+        <div class="field"><label>Hakkımda (opsiyonel)</label><textarea id="regBio" placeholder="Uzmanlık alanlarınız, deneyiminiz..."></textarea></div>
+        <button class="submit-btn" onclick="handleRegister()">Kayıt Ol ve Doğrulama Bekle</button>
+        <p class="form-note">Gerçek bir sistemde bu aşamada baro levhası üzerinden manuel doğrulama yapılır. Bu demoda kayıt anında aktif olursunuz.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PANEL ================= -->
+<div class="view" id="view-panel">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Panelim</h2>
+      <div class="who">Hoş geldiniz, <b id="panelWho">—</b> · <button class="small-btn" style="padding:4px 10px;" onclick="handleLogout()">Çıkış Yap</button></div>
+    </div>
+
+    <div class="panel-tabs">
+      <button class="ptab active" data-ptab="open">Açık Görevler</button>
+      <button class="ptab" data-ptab="mine">Oluşturduklarım</button>
+      <button class="ptab" data-ptab="taken">Üstlendiklerim</button>
+      <button class="ptab" data-ptab="profile">Profilim</button>
+    </div>
+
+    <div id="ptab-open">
+      <div class="create-form">
+        <h3>Yeni Görev Aç</h3>
+        <div class="field-row">
+          <div class="field"><label>Adliye / İl</label><input type="text" id="taskCity" placeholder="Ankara Adliyesi"></div>
+          <div class="field"><label>Son Tarih</label><input type="date" id="taskDate"></div>
+        </div>
+        <div class="field"><label>Başlık</label><input type="text" id="taskTitle" placeholder="Duruşmaya katılım / evrak teslimi..."></div>
+        <div class="field"><label>Açıklama</label><textarea id="taskDesc" placeholder="Dosya no, mahkeme, yapılması gerekenler..."></textarea></div>
+        <button class="small-btn solid" onclick="createTask()">Görevi Yayınla</button>
+      </div>
+      <div class="panel-grid" id="openTasksList"></div>
+    </div>
+
+    <div id="ptab-mine" style="display:none;">
+      <div class="panel-grid" id="mineTasksList"></div>
+    </div>
+
+    <div id="ptab-taken" style="display:none;">
+      <div class="panel-grid" id="takenTasksList"></div>
+    </div>
+
+    <div id="ptab-profile" style="display:none;">
+      <div class="profile-card">
+        <div class="profile-head">
+          <div class="avatar-ring" id="profAvatar">—</div>
+          <div>
+            <h3 id="profName">—</h3>
+            <div class="sub" id="profMeta">—</div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="ps"><div class="v" id="profRating">—</div><div class="l">Ortalama Puan</div></div>
+          <div class="ps"><div class="v" id="profCompleted">0</div><div class="l">Tamamlanan</div></div>
+          <div class="ps"><div class="v" id="profCreated">0</div><div class="l">Açtığı Görev</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rating modal -->
+<div class="modal-bg" id="ratingModal">
+  <div class="modal">
+    <h3>Görevi tamamla ve puanla</h3>
+    <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Meslektaşınızın performansını değerlendirin.</p>
+    <div class="star-picker" id="starPicker"></div>
+    <div class="modal-actions">
+      <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeModal()">Vazgeç</button>
+      <button class="cta-btn" onclick="submitRating()">Tamamla ve Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== STATE & STORAGE ===================== */
+let currentUser = null; // email
+let pickedStars = 0;
+let modalTaskId = null;
+
+const SEED_LAWYERS = [
+  {email:'demo1@baro.org.tr', name:'Av. Deniz Kaya', baro:'İzmir Barosu', sicil:'4521', il:'İzmir', adliye:'İzmir Adliyesi', bio:'İcra ve iflas hukuku.', rating:4.8, completed:14, created:9},
+  {email:'demo2@baro.org.tr', name:'Av. Mert Sönmez', baro:'Ankara Barosu', sicil:'8832', il:'Ankara', adliye:'Ankara Adliyesi', bio:'Ticaret hukuku.', rating:4.6, completed:22, created:5},
+];
+const SEED_TASKS = [
+  {id:'t1', title:'Duruşmaya katılım', city:'Ankara Adliyesi', desc:'12. Asliye Hukuk, saat 10:00 duruşmasına katılım ve zabıt takibi.', date:'2026-08-12', ownerEmail:'demo1@baro.org.tr', ownerName:'Av. Deniz Kaya', status:'open', assigneeEmail:null, assigneeName:null, createdAt:Date.now()-3600e3},
+  {id:'t2', title:'İcra dosyası evrak teslimi', city:'Bursa Adliyesi', desc:'İcra dairesine haciz talebi evrakının elden teslimi.', date:'2026-08-09', ownerEmail:'demo2@baro.org.tr', ownerName:'Av. Mert Sönmez', status:'open', assigneeEmail:null, assigneeName:null, createdAt:Date.now()-7200e3},
+  {id:'t3', title:'Keşif işlemi takibi', city:'Antalya Adliyesi', desc:'Bilirkişi keşfine avukat sıfatıyla katılım.', date:'2026-08-15', ownerEmail:'demo1@baro.org.tr', ownerName:'Av. Deniz Kaya', status:'open', assigneeEmail:null, assigneeName:null, createdAt:Date.now()-1800e3},
+];
+
+async function initData(){
+  try{
+    await window.storage.get('lawyers');
+  }catch(e){
+    await window.storage.set('lawyers', JSON.stringify(SEED_LAWYERS), true);
+  }
+  try{
+    await window.storage.get('tasks');
+  }catch(e){
+    await window.storage.set('tasks', JSON.stringify(SEED_TASKS), true);
+  }
+}
+async function getLawyers(){
+  try{ const r = await window.storage.get('lawyers', true); return r ? JSON.parse(r.value) : []; }catch(e){ return []; }
+}
+async function getTasks(){
+  try{ const r = await window.storage.get('tasks', true); return r ? JSON.parse(r.value) : []; }catch(e){ return []; }
+}
+async function saveLawyers(arr){ await window.storage.set('lawyers', JSON.stringify(arr), true); }
+async function saveTasks(arr){ await window.storage.set('tasks', JSON.stringify(arr), true); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ===================== NAV ===================== */
+function switchView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const navBtn = document.querySelector('.nav-btn[data-view="'+name+'"]');
+  if(navBtn) navBtn.classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+  if(name==='board') renderBoard();
+  if(name==='panel') renderPanel();
+}
+
+document.querySelectorAll('[data-view]').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const v = el.getAttribute('data-view');
+    if(v==='panel' && !currentUser){ switchView('auth'); setAuthTab('login'); showToast('Panele erişmek için giriş yapmalısınız.'); return; }
+    if(v==='auth'){ setAuthTab(el.getAttribute('data-tab')||'login'); }
+    switchView(v);
+  });
+});
+
+function setAuthTab(tab){
+  const isLogin = tab==='login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('loginForm').style.display = isLogin ? 'block':'none';
+  document.getElementById('registerForm').style.display = isLogin ? 'none':'block';
+}
+document.getElementById('tabLogin').addEventListener('click', ()=>setAuthTab('login'));
+document.getElementById('tabRegister').addEventListener('click', ()=>setAuthTab('register'));
+
+document.querySelectorAll('.ptab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ['open','mine','taken','profile'].forEach(k=>{
+      document.getElementById('ptab-'+k).style.display = (k===btn.dataset.ptab) ? 'block':'none';
+    });
+  });
+});
+
+/* ===================== AUTH ===================== */
+async function handleLogin(){
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const errEl = document.getElementById('loginErr');
+  errEl.style.display='none';
+  if(!email){ errEl.textContent='E-posta girin.'; errEl.style.display='block'; return; }
+  const lawyers = await getLawyers();
+  const found = lawyers.find(l=>l.email.toLowerCase()===email);
+  if(!found){ errEl.textContent='Bu e-posta ile kayıtlı üye bulunamadı. Önce kayıt olun.'; errEl.style.display='block'; return; }
+  currentUser = found.email;
+  showToast('Hoş geldiniz, '+found.name);
+  updateHeaderAuth();
+  switchView('panel');
+}
+
+async function handleRegister(){
+  const name = document.getElementById('regName').value.trim();
+  const baro = document.getElementById('regBaro').value.trim();
+  const sicil = document.getElementById('regSicil').value.trim();
+  const il = document.getElementById('regIl').value.trim();
+  const adliye = document.getElementById('regAdliye').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const bio = document.getElementById('regBio').value.trim();
+  const errEl = document.getElementById('regErr');
+  errEl.style.display='none';
+  if(!name||!baro||!sicil||!il||!adliye||!email){
+    errEl.textContent='Lütfen tüm zorunlu alanları doldurun.'; errEl.style.display='block'; return;
+  }
+  const lawyers = await getLawyers();
+  if(lawyers.find(l=>l.email.toLowerCase()===email)){
+    errEl.textContent='Bu e-posta zaten kayıtlı. Giriş yapmayı deneyin.'; errEl.style.display='block'; return;
+  }
+  const newLawyer = {email, name, baro, sicil, il, adliye, bio, rating:null, completed:0, created:0};
+  lawyers.push(newLawyer);
+  await saveLawyers(lawyers);
+  currentUser = email;
+  showToast('Kayıt tamamlandı. Aramıza hoş geldiniz, '+name);
+  updateHeaderAuth();
+  switchView('panel');
+}
+
+function handleLogout(){
+  currentUser = null;
+  updateHeaderAuth();
+  showToast('Çıkış yapıldı.');
+  switchView('landing');
+}
+
+function updateHeaderAuth(){
+  const area = document.getElementById('headerAuthArea');
+  if(currentUser){
+    area.innerHTML = '<button class="ghost-btn" onclick="switchView(\\'panel\\')">Panelim</button>';
+  } else {
+    area.innerHTML = '<button class="ghost-btn" data-view="auth" data-tab="login">Giriş Yap</button><button class="cta-btn" data-view="auth" data-tab="register">Kayıt Ol</button>';
+    area.querySelectorAll('[data-view]').forEach(el=>{
+      el.addEventListener('click', ()=>{ setAuthTab(el.getAttribute('data-tab')||'login'); switchView('auth'); });
+    });
+  }
+}
+
+/* ===================== TASKS ===================== */
+async function createTask(){
+  if(!currentUser){ showToast('Görev açmak için giriş yapmalısınız.'); return; }
+  const city = document.getElementById('taskCity').value.trim();
+  const date = document.getElementById('taskDate').value;
+  const title = document.getElementById('taskTitle').value.trim();
+  const desc = document.getElementById('taskDesc').value.trim();
+  if(!city||!title||!desc){ showToast('Lütfen adliye, başlık ve açıklama girin.'); return; }
+  const lawyers = await getLawyers();
+  const me = lawyers.find(l=>l.email===currentUser);
+  const tasks = await getTasks();
+  const task = {
+    id:'t'+Date.now(), title, city, desc, date: date || '—',
+    ownerEmail: currentUser, ownerName: me ? me.name : currentUser,
+    status:'open', assigneeEmail:null, assigneeName:null, createdAt: Date.now()
+  };
+  tasks.unshift(task);
+  await saveTasks(tasks);
+  document.getElementById('taskCity').value='';
+  document.getElementById('taskDate').value='';
+  document.getElementById('taskTitle').value='';
+  document.getElementById('taskDesc').value='';
+  showToast('Görev yayınlandı.');
+  renderPanel();
+}
+
+async function acceptTask(id){
+  if(!currentUser){ showToast('Görevi kabul etmek için giriş yapmalısınız.'); switchView('auth'); return; }
+  const lawyers = await getLawyers();
+  const me = lawyers.find(l=>l.email===currentUser);
+  const tasks = await getTasks();
+  const t = tasks.find(x=>x.id===id);
+  if(!t || t.status!=='open') return;
+  if(t.ownerEmail===currentUser){ showToast('Kendi görevinizi üstlenemezsiniz.'); return; }
+  t.status='assigned';
+  t.assigneeEmail = currentUser;
+  t.assigneeName = me ? me.name : currentUser;
+  await saveTasks(tasks);
+  showToast('Görevi üstlendiniz. İletişim bilgileri görev sahibiyle paylaşıldı.');
+  renderPanel(); renderBoard();
+}
+
+function openRatingModal(id){
+  modalTaskId = id; pickedStars = 0;
+  const picker = document.getElementById('starPicker');
+  picker.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const b = document.createElement('button');
+    b.textContent = '★';
+    b.onclick = ()=>{ pickedStars=i; renderStars(); };
+    picker.appendChild(b);
+  }
+  renderStars();
+  document.getElementById('ratingModal').classList.add('active');
+}
+function renderStars(){
+  const btns = document.querySelectorAll('#starPicker button');
+  btns.forEach((b,idx)=>b.classList.toggle('picked', idx < pickedStars));
+}
+function closeModal(){ document.getElementById('ratingModal').classList.remove('active'); modalTaskId=null; }
+
+async function submitRating(){
+  if(!modalTaskId || pickedStars===0){ showToast('Lütfen bir puan seçin.'); return; }
+  const tasks = await getTasks();
+  const t = tasks.find(x=>x.id===modalTaskId);
+  if(!t) return;
+  t.status='completed';
+  t.rating = pickedStars;
+  await saveTasks(tasks);
+
+  const lawyers = await getLawyers();
+  const assignee = lawyers.find(l=>l.email===t.assigneeEmail);
+  const owner = lawyers.find(l=>l.email===t.ownerEmail);
+  if(assignee){
+    const prevTotal = (assignee.rating||0) * (assignee.completed||0);
+    assignee.completed = (assignee.completed||0) + 1;
+    assignee.rating = Number(((prevTotal + pickedStars) / assignee.completed).toFixed(1));
+  }
+  if(owner){ owner.created = (owner.created||0) + 1; }
+  await saveLawyers(lawyers);
+
+  closeModal();
+  showToast('Görev tamamlandı ve puanlandı.');
+  renderPanel();
+}
+
+/* ===================== RENDER ===================== */
+function timeAgo(ts){
+  const diff = Math.floor((Date.now()-ts)/60000);
+  if(diff < 1) return 'az önce';
+  if(diff < 60) return diff+' dk önce';
+  const h = Math.floor(diff/60);
+  if(h < 24) return h+' sa önce';
+  return Math.floor(h/24)+' gün önce';
+}
+
+function taskCardHTML(t, opts={}){
+  const statusMap = {open:['Açık','status-open'], assigned:['Üstlenildi','status-assigned'], completed:['Tamamlandı','status-completed']};
+  const [label, cls] = statusMap[t.status];
+  let actionBtn = '';
+  if(opts.mode==='board' || opts.mode==='open'){
+    if(t.status==='open'){
+      actionBtn = currentUser
+        ? '<button class="small-btn solid" onclick="acceptTask(\\''+t.id+'\\')">Görevi Al</button>'
+        : '<button class="small-btn" onclick="switchView(\\'auth\\')">Almak için giriş yap</button>';
+    }
+  }
+  if(opts.mode==='mine' && t.status==='assigned'){
+    actionBtn = '<button class="small-btn solid" onclick="openRatingModal(\\''+t.id+'\\')">Tamamla & Puanla</button>';
+  }
+  return '<div class="task-card">'+
+    '<div>'+
+      '<span class="city-tag">'+escapeHtml(t.city)+'</span>'+
+      '<h4>'+escapeHtml(t.title)+'</h4>'+
+      '<div class="desc">'+escapeHtml(t.desc)+'</div>'+
+      '<div class="meta">Açan: '+escapeHtml(t.ownerName)+' · Tarih: '+escapeHtml(t.date)+' · '+timeAgo(t.createdAt)+
+        (t.assigneeName ? ' · Üstlenen: '+escapeHtml(t.assigneeName) : '')+
+      '</div>'+
+    '</div>'+
+    '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">'+
+      '<span class="status-badge '+cls+'">'+label+'</span>'+
+      actionBtn+
+    '</div>'+
+  '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+async function renderLandingDocket(){
+  const tasks = await getTasks();
+  const open = tasks.filter(t=>t.status==='open').slice(0,5);
+  const el = document.getElementById('landingDocket');
+  if(open.length===0){ el.innerHTML = '<div class="docket-item"><span class="desc">Şu anda açık görev yok.</span></div>'; return; }
+  el.innerHTML = open.map(t=>
+    '<div class="docket-item"><div><div class="city">'+escapeHtml(t.city)+'</div><div class="desc">'+escapeHtml(t.title)+'</div></div><div class="time">'+timeAgo(t.createdAt)+'</div></div>'
+  ).join('');
+}
+
+async function renderStats(){
+  const lawyers = await getLawyers();
+  const tasks = await getTasks();
+  document.getElementById('statLawyers').textContent = lawyers.length;
+  document.getElementById('statTasks').textContent = tasks.length;
+  document.getElementById('statDone').textContent = tasks.filter(t=>t.status==='completed').length;
+}
+
+async function renderBoard(){
+  const tasks = await getTasks();
+  const open = tasks.filter(t=>t.status==='open');
+  const el = document.getElementById('boardList');
+  if(open.length===0){ el.innerHTML = '<div class="empty-state"><h4>Şu anda açık görev yok</h4>Yeni bir görev açan ilk siz olun.</div>'; return; }
+  el.innerHTML = open.map(t=>taskCardHTML(t,{mode:'board'})).join('');
+}
+
+async function renderPanel(){
+  if(!currentUser){ switchView('auth'); return; }
+  const lawyers = await getLawyers();
+  const me = lawyers.find(l=>l.email===currentUser);
+  const tasks = await getTasks();
+  document.getElementById('panelWho').textContent = me ? me.name : currentUser;
+
+  const open = tasks.filter(t=>t.status==='open');
+  document.getElementById('openTasksList').innerHTML = open.length
+    ? open.map(t=>taskCardHTML(t,{mode:'open'})).join('')
+    : '<div class="empty-state"><h4>Açık görev yok</h4>Yukarıdan yeni bir görev oluşturabilirsiniz.</div>';
+
+  const mine = tasks.filter(t=>t.ownerEmail===currentUser);
+  document.getElementById('mineTasksList').innerHTML = mine.length
+    ? mine.map(t=>taskCardHTML(t,{mode:'mine'})).join('')
+    : '<div class="empty-state"><h4>Henüz görev oluşturmadınız</h4>"Açık Görevler" sekmesinden yeni görev açabilirsiniz.</div>';
+
+  const taken = tasks.filter(t=>t.assigneeEmail===currentUser);
+  document.getElementById('takenTasksList').innerHTML = taken.length
+    ? taken.map(t=>taskCardHTML(t,{mode:'taken'})).join('')
+    : '<div class="empty-state"><h4>Henüz görev üstlenmediniz</h4>Açık görevlerden birini alarak başlayın.</div>';
+
+  if(me){
+    document.getElementById('profAvatar').textContent = me.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    document.getElementById('profName').textContent = me.name;
+    document.getElementById('profMeta').textContent = me.baro+' · Sicil '+me.sicil+' · '+me.il;
+    document.getElementById('profRating').textContent = me.rating ? (me.rating+' ★') : '—';
+    document.getElementById('profCompleted').textContent = me.completed || 0;
+    document.getElementById('profCreated').textContent = me.created || 0;
+  }
+}
+
+/* ===================== INIT ===================== */
+(async function init(){
+  await initData();
+  await renderLandingDocket();
+  await renderStats();
+  await renderBoard();
+  updateHeaderAuth();
+})();
+</script>
+
+
+</body></html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nöbetçi — Avukatlar Arası Tevkil Ağı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="bg-lines"></div>
+<div class="bg-columns" aria-hidden="true"></div>
+<div class="bg-sweep" aria-hidden="true"></div>
+
+<header>
+  <div class="nav-wrap">
+    <div class="brand">
+      <div class="seal-mark">N</div>
+      <div>
+        <div class="brand-name">Nöbetçi</div>
+        <div class="brand-sub">Tevkil Dayanışma Ağı</div>
+      </div>
+    </div>
+    <nav class="links">
+      <button class="nav-btn active" data-view="landing">Ana Sayfa</button>
+      <button class="nav-btn" data-view="board">Görev Panosu</button>
+      <button class="nav-btn" id="navPanel" data-view="panel">Panelim</button>
+      <button class="nav-btn" id="navAdmin" data-view="admin" style="display:none;">Admin</button>
+    </nav>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div class="notif-wrap" id="notifArea" style="display:none;">
+        <button class="notif-btn" onclick="toggleNotifDropdown()" aria-label="Bildirimler">
+          🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+        </button>
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-header">
+            <span>Bildirimler</span>
+            <button onclick="handleMarkAllRead()">Tümünü okundu işaretle</button>
+          </div>
+          <div id="notifDropdownList"></div>
+        </div>
+      </div>
+      <div id="headerAuthArea" style="display:flex; gap:10px;">
+        <button class="ghost-btn" data-view="auth" data-tab="login">Giriş Yap</button>
+        <button class="cta-btn" data-view="auth" data-tab="register">Kayıt Ol</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= LANDING ================= -->
+<div class="view active" id="view-landing">
+  <div class="hero">
+    <div class="hero-motif" aria-hidden="true">
+      <svg class="scales-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle class="scales-glow" cx="150" cy="140" r="120"></circle>
+        <line x1="112" y1="262" x2="188" y2="262" class="scales-base"></line>
+        <line x1="150" y1="258" x2="150" y2="92" class="scales-post"></line>
+        <g class="scales-rig">
+          <line x1="72" y1="90" x2="228" y2="90" class="scales-beam"></line>
+          <line x1="72" y1="90" x2="72" y2="132" class="scales-chain"></line>
+          <line x1="228" y1="90" x2="228" y2="132" class="scales-chain"></line>
+          <path d="M46,132 Q72,168 98,132 Z" class="scales-pan"></path>
+          <path d="M202,132 Q228,168 254,132 Z" class="scales-pan"></path>
+          <circle cx="150" cy="90" r="6" class="scales-pivot"></circle>
+        </g>
+      </svg>
+    </div>
+    <div>
+      <div class="eyebrow"><span class="dot"></span> 81 il · tüm adliyeler</div>
+      <h1>İl dışı işiniz için<br><em>meslektaşınıza</em><br>güvenle tevkil verin.</h1>
+      <svg class="sig-line" viewBox="0 0 180 22" aria-hidden="true"><path d="M2,14 C22,2 34,20 54,10 C70,2 82,18 100,9 C114,2 128,17 146,8 C156,4 164,10 178,7"></path></svg>
+      <p class="lead">Nöbetçi, avukatların birbirine iş yükü paylaşımı yaptığı, şeffaf puanlama ile çalışan bir mesleki dayanışma ağıdır. Görev açın, uygun meslektaşınız kabul etsin, işiniz zamanında görülsün.</p>
+      <div class="hero-ctas">
+        <button class="cta-btn" data-view="auth" data-tab="register">Ücretsiz Kayıt Ol</button>
+        <button class="ghost-btn" data-view="board">Açık Görevlere Göz At</button>
+      </div>
+    </div>
+    <div class="docket">
+      <div class="docket-head">
+        <span class="t">Docket · Güncel Görevler</span>
+        <span class="live-pill"><span class="p"></span>CANLI</span>
+      </div>
+      <div class="docket-list" id="landingDocket"></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> Neden Nöbetçi</div>
+      <h2>Sahadaki güveni dijitale taşıdık.</h2>
+      <p>Baro sicil doğrulaması, adil atama sırası ve karşılıklı puanlama ile kurulmuş bir sistem — kimin görev aldığı, ne kadar hızlı döndüğü şeffaf.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="n">01 — Doğrulama</div>
+        <h3>Baro sicil kontrolü</h3>
+        <p>Her üye kayıt sırasında baro sicil numarası ile beyan verir; ekibimiz onayladıktan sonra hesap aktifleşir.</p>
+      </div>
+      <div class="feat-card">
+        <div class="n">02 — Atama</div>
+        <h3>Adil sıra sistemi</h3>
+        <p>Görevler, o adliyede kayıtlı ve aktif durumdaki meslektaşlara sıra ile bildirilir; kimse sürekli öne geçmez.</p>
+      </div>
+      <div class="feat-card">
+        <div class="n">03 — İtibar</div>
+        <h3>Karşılıklı puanlama</h3>
+        <p>Her tamamlanan görev sonrası iki taraf da puanlanır. Profiliniz, geçmiş performansınızı taşır.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span> Nasıl Çalışır</div>
+      <h2>Dört adımda görevlendirme.</h2>
+    </div>
+    <div class="steps">
+      <div class="step-row">
+        <div class="num">1</div>
+        <h4>Görev açın</h4>
+        <p>İl dışı işiniz için adliye, iş türü ve tarih belirterek görevi yayınlayın.</p>
+      </div>
+      <div class="step-row">
+        <div class="num">2</div>
+        <h4>Bildirim gider</h4>
+        <p>İlgili adliyede kayıtlı, aktif durumdaki meslektaşlarınıza anında bildirim ulaşır.</p>
+      </div>
+      <div class="step-row">
+        <div class="num">3</div>
+        <h4>Kabul edilir</h4>
+        <p>Sıradaki uygun meslektaşınız görevi kabul eder, iletişim bilgileri karşılıklı görünür olur.</p>
+      </div>
+      <div class="step-row">
+        <div class="num">4</div>
+        <h4>Tamamlanır, puanlanır</h4>
+        <p>İş bitince görevi kapatır, birbirinizi puanlarsınız. Geçmiş, profilinizde arşivlenir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="stats-bar">
+      <div class="stat"><div class="val" id="statLawyers">0</div><div class="lbl">Kayıtlı Avukat</div></div>
+      <div class="stat"><div class="val" id="statTasks">0</div><div class="lbl">Toplam Görev</div></div>
+      <div class="stat"><div class="val" id="statDone">0</div><div class="lbl">Tamamlanan</div></div>
+      <div class="stat">81</div>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <h3>Meslektaşlarınız şu an görev bekliyor olabilir.</h3>
+    <div style="display:flex; gap:12px;">
+      <button class="cta-btn" data-view="auth" data-tab="register">Hemen Katıl</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>Nöbetçi — Avukatlar Arası Tevkil ve Dayanışma Ağı. Üyelik, admin onayı ve görev panosu gerçek bir PostgreSQL veritabanına bağlıdır.</p>
+  </footer>
+</div>
+
+<!-- ================= BOARD (public, read-only-ish) ================= -->
+<div class="view" id="view-board">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Görev Panosu</h2>
+      <span class="who">Tüm açık görevleri görebilirsiniz. Kabul etmek için giriş yapmalısınız.</span>
+    </div>
+    <div class="panel-grid" id="boardList"></div>
+  </div>
+</div>
+
+<!-- ================= AUTH ================= -->
+<div class="view" id="view-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="tab-switch">
+        <button id="tabLogin" class="active">Giriş Yap</button>
+        <button id="tabRegister">Kayıt Ol</button>
+      </div>
+
+      <div id="loginForm">
+        <h2>Tekrar hoş geldiniz</h2>
+        <p class="sub">Kayıtlı e-posta ve şifrenizle giriş yapın.</p>
+        <div class="err-msg" id="loginErr"></div>
+        <div class="field"><label>E-posta</label><input type="email" id="loginEmail" placeholder="ornek@baro.org.tr" autocomplete="username"></div>
+        <div class="field"><label>Şifre</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="submit-btn" id="loginBtn" onclick="handleLogin()">Giriş Yap</button>
+        <p class="form-note">
+          Hesabınız admin onayı bekliyorsa giriş yapamazsınız; onaylandığınızda haber verilir.<br>
+          <a href="#" id="forgotPasswordLink" style="color:var(--seal); font-weight:600;">Şifremi unuttum</a>
+        </p>
+      </div>
+
+      <div id="forgotForm" style="display:none;">
+        <h2>Şifrenizi mi unuttunuz?</h2>
+        <p class="sub">E-posta adresinizi girin, sıfırlama bağlantısı gönderelim.</p>
+        <div class="err-msg" id="forgotErr"></div>
+        <div class="ok-msg" id="forgotOk"></div>
+        <div class="field"><label>E-posta</label><input type="email" id="forgotEmail" placeholder="ornek@baro.org.tr"></div>
+        <button class="submit-btn" id="forgotBtn" onclick="handleForgotPassword()">Sıfırlama Bağlantısı Gönder</button>
+        <p class="form-note"><a href="#" id="backToLoginLink" style="color:var(--seal); font-weight:600;">Girişe dön</a></p>
+      </div>
+
+      <div id="resetForm" style="display:none;">
+        <h2>Yeni şifre belirleyin</h2>
+        <p class="sub">Hesabınız için yeni bir şifre girin.</p>
+        <div class="err-msg" id="resetErr"></div>
+        <div class="ok-msg" id="resetOk"></div>
+        <div class="field"><label>Yeni Şifre</label><input type="password" id="resetPassword" placeholder="En az 8 karakter" autocomplete="new-password"></div>
+        <div class="field"><label>Yeni Şifre (Tekrar)</label><input type="password" id="resetPasswordConfirm" placeholder="Tekrar girin" autocomplete="new-password"></div>
+        <button class="submit-btn" id="resetBtn" onclick="handleResetPassword()">Şifreyi Güncelle</button>
+      </div>
+
+      <div id="registerForm" style="display:none;">
+        <h2>Aramıza katılın</h2>
+        <p class="sub">Baro sicil bilgilerinizle üyelik oluşturun.</p>
+        <div class="err-msg" id="regErr"></div>
+        <div class="ok-msg" id="regOk"></div>
+        <div class="avatar-picker">
+          <div class="avatar-ring avatar-ring-lg" id="regAvatarPreview">
+            <img id="regAvatarPreviewImg" style="display:none;" alt="">
+            <span id="regAvatarPreviewIcon">📷</span>
+          </div>
+          <div>
+            <button type="button" class="small-btn" id="regAvatarBtn">Fotoğraf Seç</button>
+            <input type="file" id="regAvatarInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+            <div class="avatar-picker-hint">Opsiyonel · admin onayından sonra herkese görünür olur.</div>
+          </div>
+        </div>
+        <div class="field"><label>Ad Soyad</label><input type="text" id="regName" placeholder="Av. Ayşe Yılmaz"></div>
+        <div class="field-row">
+          <div class="field"><label>Baro</label><input type="text" id="regBaro" placeholder="İzmir Barosu"></div>
+          <div class="field"><label>Sicil No</label><input type="text" id="regSicil" placeholder="12345"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>İl</label><input type="text" id="regIl" placeholder="İzmir"></div>
+          <div class="field"><label>Adliye</label><input type="text" id="regAdliye" placeholder="İzmir Adliyesi"></div>
+        </div>
+        <div class="field"><label>E-posta</label><input type="email" id="regEmail" placeholder="ornek@baro.org.tr" autocomplete="username"></div>
+        <div class="field-row">
+          <div class="field"><label>Şifre</label><input type="password" id="regPassword" placeholder="En az 8 karakter" autocomplete="new-password"></div>
+          <div class="field"><label>Şifre (Tekrar)</label><input type="password" id="regPasswordConfirm" placeholder="Tekrar girin" autocomplete="new-password"></div>
+        </div>
+        <div class="field"><label>Hakkımda (opsiyonel)</label><textarea id="regBio" placeholder="Uzmanlık alanlarınız, deneyiminiz..."></textarea></div>
+        <button class="submit-btn" id="registerBtn" onclick="handleRegister()">Kayıt Ol ve Doğrulama Bekle</button>
+        <p class="form-note">Kayıt sonrası hesabınız "onay bekliyor" durumunda oluşturulur. Admin, baro sicil bilgilerinizi doğruladıktan sonra hesabınızı onaylar ve giriş yapabilirsiniz.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PANEL ================= -->
+<div class="view" id="view-panel">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Panelim</h2>
+      <div class="who">Hoş geldiniz, <b id="panelWho">—</b> · <button class="small-btn" style="padding:4px 10px;" onclick="handleLogout()">Çıkış Yap</button></div>
+    </div>
+
+    <div class="panel-tabs">
+      <button class="ptab active" data-ptab="open">Açık Görevler</button>
+      <button class="ptab" data-ptab="mine">Oluşturduklarım</button>
+      <button class="ptab" data-ptab="taken">Üstlendiklerim</button>
+      <button class="ptab" data-ptab="profile">Profilim</button>
+    </div>
+
+    <div id="ptab-open">
+      <div class="create-form">
+        <h3>Yeni Görev Aç</h3>
+        <div class="field-row">
+          <div class="field">
+            <label>Adliye / İl</label>
+            <input type="text" id="taskCity" placeholder="Ankara Adliyesi">
+            <small class="hint" id="taskCityQueueHint"></small>
+          </div>
+          <div class="field"><label>Son Tarih</label><input type="date" id="taskDate"></div>
+        </div>
+        <div class="field"><label>Başlık</label><input type="text" id="taskTitle" placeholder="Duruşmaya katılım / evrak teslimi..."></div>
+        <div class="field"><label>Açıklama</label><textarea id="taskDesc" placeholder="Dosya no, mahkeme, yapılması gerekenler..."></textarea></div>
+        <button class="small-btn solid" onclick="createTask()">Görevi Yayınla</button>
+      </div>
+      <div class="panel-grid" id="openTasksList"></div>
+    </div>
+
+    <div id="ptab-mine" style="display:none;">
+      <div class="panel-grid" id="mineTasksList"></div>
+    </div>
+
+    <div id="ptab-taken" style="display:none;">
+      <div class="panel-grid" id="takenTasksList"></div>
+    </div>
+
+    <div id="ptab-profile" style="display:none;">
+      <div class="profile-card">
+        <div class="profile-head">
+          <div class="avatar-ring avatar-ring-lg" id="profAvatar">
+            <img id="profAvatarImg" style="display:none;" alt="">
+            <span id="profAvatarInitials">—</span>
+          </div>
+          <div>
+            <h3 id="profName">—</h3>
+            <div class="sub" id="profMeta">—</div>
+            <div class="avatar-status-row">
+              <span class="avatar-status-badge" id="profAvatarStatus" style="display:none;"></span>
+              <button class="small-btn" id="profAvatarUploadBtn">Fotoğraf Yükle / Değiştir</button>
+              <input type="file" id="profAvatarInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+            </div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="ps"><div class="v" id="profRating">—</div><div class="l">Ortalama Puan</div></div>
+          <div class="ps"><div class="v" id="profCompleted">0</div><div class="l">Tamamlanan</div></div>
+          <div class="ps"><div class="v" id="profCreated">0</div><div class="l">Açtığı Görev</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ADMIN ================= -->
+<div class="view" id="view-admin">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Admin Paneli</h2>
+      <span class="who">Üyelik başvurularını onaylayın veya reddedin.</span>
+    </div>
+
+    <div class="panel-tabs">
+      <button class="ptab active" data-atab="pending">Onay Bekleyenler</button>
+      <button class="ptab" data-atab="approved">Onaylılar</button>
+      <button class="ptab" data-atab="rejected">Reddedilenler</button>
+      <button class="ptab" data-atab="avatars">Profil Fotoğrafları</button>
+    </div>
+
+    <div class="panel-grid" id="adminUsersList"></div>
+  </div>
+</div>
+
+<!-- Rating modal -->
+<div class="modal-bg" id="ratingModal">
+  <div class="modal">
+    <h3>Görevi tamamla ve puanla</h3>
+    <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Meslektaşınızın performansını değerlendirin.</p>
+    <div class="star-picker" id="starPicker"></div>
+    <div class="modal-actions">
+      <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeModal()">Vazgeç</button>
+      <button class="cta-btn" onclick="submitRating()">Tamamla ve Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<!-- notifications.js, main.js'ten önce yüklenmeli: main.js'in en altındaki init() IIFE'si
+     bootstrapSession() -> updateHeaderAuth() -> refreshNotifications() zincirini hemen
+     tetikler; classic <script> etiketleri sırayla bloklayarak yüklendiği için
+     refreshNotifications bu noktada zaten tanımlı olmalı. -->
+<script src="/js/notifications.js"></script>
+<script src="/js/profile.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/motion.js"></script>
+</body>
+</html>
