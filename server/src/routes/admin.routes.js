@@ -32,4 +32,7 @@ router.post(
   adminController.rejectComment
 );
 
+router.get('/disputes', adminController.listDisputes);
+router.post('/disputes/:id/resolve', adminController.resolveDispute);
+
 module.exports = router;

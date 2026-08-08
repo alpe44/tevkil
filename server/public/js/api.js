@@ -54,6 +54,10 @@ const api = {
   createTask: (payload) => apiRequest('/tasks', { method: 'POST', body: payload }),
   applyToTask: (id, payload) => apiRequest('/tasks/' + id + '/apply', { method: 'POST', body: payload }),
   listMyApplications: () => apiRequest('/tasks/applications/mine'),
+  listSubmittedApplications: () => apiRequest('/tasks/applications/submitted'),
+  submitDispute: (taskId, message) => apiRequest('/tasks/' + taskId + '/dispute', { method: 'POST', body: { message } }),
+  adminListDisputes: () => apiRequest('/admin/disputes'),
+  adminResolveDispute: (id) => apiRequest('/admin/disputes/' + id + '/resolve', { method: 'POST' }),
   approveApplication: (taskId, applicantId) =>
     apiRequest('/tasks/' + taskId + '/applications/' + applicantId + '/approve', { method: 'POST' }),
   rejectApplication: (taskId, applicantId) =>

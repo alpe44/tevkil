@@ -286,6 +286,7 @@
       <button class="ptab active" data-ptab="open">Açık Görevler</button>
       <button class="ptab" data-ptab="mine">Oluşturduklarım</button>
       <button class="ptab" data-ptab="taken">Üstlendiklerim</button>
+      <button class="ptab" data-ptab="applied">Başvurduğum Görevler</button>
       <button class="ptab" data-ptab="profile">Profilim</button>
     </div>
 
@@ -377,6 +378,10 @@
       <div class="panel-grid" id="takenTasksList"></div>
     </div>
 
+    <div id="ptab-applied" style="display:none;">
+      <div class="panel-grid" id="appliedTasksList"></div>
+    </div>
+
     <div id="ptab-profile" style="display:none;">
       <div class="profile-card">
         <div class="profile-head">
@@ -418,6 +423,7 @@
       <button class="ptab" data-atab="rejected">Reddedilenler</button>
       <button class="ptab" data-atab="avatars">Profil Fotoğrafları</button>
       <button class="ptab" data-atab="comments">Yorumlar</button>
+      <button class="ptab" data-atab="disputes">İtirazlar</button>
     </div>
 
     <div class="panel-grid" id="adminUsersList"></div>
@@ -464,6 +470,20 @@
     <div class="modal-actions">
       <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeModal()">Vazgeç</button>
       <button class="cta-btn" onclick="submitRating()">Tamamla ve Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dispute modal -->
+<div class="modal-bg" id="disputeModal">
+  <div class="modal">
+    <h3>İtiraz et</h3>
+    <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Bu görevle ilgili bir sıkıntı yaşadıysanız açıklayın, doğrudan admin'e iletilir.</p>
+    <div class="err-msg" id="disputeErr"></div>
+    <div class="field"><label>Açıklama</label><textarea id="disputeMessage" placeholder="Yaşadığınız sıkıntıyı açıklayın..."></textarea></div>
+    <div class="modal-actions">
+      <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeDisputeModal()">Vazgeç</button>
+      <button class="cta-btn" onclick="submitDispute()">İtirazı Gönder</button>
     </div>
   </div>
 </div>

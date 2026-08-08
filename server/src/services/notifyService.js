@@ -122,6 +122,29 @@ async function notifyApplicationAutoRejected(applicant, task) {
   await notificationModel.create({ userId: applicant.id, type: 'application_rejected', title, body, taskId: task.id });
 }
 
+/** Bir başvuran, bir görevle ilgili itiraz gönderdiğinde tüm adminlere bildirim. */
+async function notifyNewDispute(dispute, task, applicant) {
+  const admins = await userModel.listAdmins();
+  if (admins.length === 0) return;
+  const title = 'Yeni itiraz: ' + task.title;
+  const body = applicant.full_name + ' bu görevle ilgili bir itirazda bulundu.';
+
+  await notificationModel.createMany(admins.map((a) => a.id), { type: 'dispute', title, body, taskId: task.id });
+  await Promise.all(
+    admins.map((a) =>
+      mailer.sendMail({
+        to: a.email,
+        subject: '[Nöbetçi] ' + title,
+        text:
+          'Merhaba ' + a.full_name + ',\n\n' +
+          applicant.full_name + ', "' + task.title + '" (' + task.city + ') görevi ile ilgili bir itirazda bulundu:\n\n' +
+          '"' + dispute.message + '"\n\n' +
+          'Admin panelindeki "İtirazlar" sekmesinden inceleyebilirsiniz.\n',
+      })
+    )
+  );
+}
+
 async function notifyAccountApproved(user) {
   const title = 'Üyeliğiniz onaylandı';
   const body = 'Artık Nöbetçi\'ye giriş yapıp görev alıp verebilirsiniz.';
@@ -195,4 +218,5 @@ module.exports = {
   notifyAvatarRejected,
   notifyCommentApproved,
   notifyCommentRejected,
+  notifyNewDispute,
 };

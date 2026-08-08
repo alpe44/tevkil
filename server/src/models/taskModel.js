@@ -94,6 +94,23 @@ async function listPendingApplicationsForOwner(ownerId) {
   return rows;
 }
 
+/** Bir avukatın kendi yaptığı TÜM başvuruları (durumu ne olursa olsun) listeler — "Başvurduğum Görevler". */
+async function listApplicationsByApplicant(applicantId) {
+  const { rows } = await query(
+    `SELECT
+        ta.id AS application_id, ta.task_id, ta.status AS application_status, ta.created_at AS applied_at,
+        t.title AS task_title, t.city AS task_city, t.status AS task_status,
+        ou.full_name AS owner_name
+      FROM task_applications ta
+      JOIN tasks t ON t.id = ta.task_id
+      JOIN users ou ON ou.id = t.owner_id
+     WHERE ta.applicant_id = $1
+     ORDER BY ta.created_at DESC`,
+    [applicantId]
+  );
+  return rows;
+}
+
 async function findApplication(taskId, applicantId) {
   const { rows } = await query(
     'SELECT * FROM task_applications WHERE task_id = $1 AND applicant_id = $2',
@@ -232,6 +249,40 @@ async function getUserStats(userId) {
   };
 }
 
+/** Başvuran, bir görevle ilgili admin'e itiraz/şikayet iletir. */
+async function createDispute({ taskId, applicantId, message }) {
+  const { rows } = await query(
+    `INSERT INTO task_disputes (task_id, applicant_id, message) VALUES ($1, $2, $3) RETURNING *`,
+    [taskId, applicantId, message]
+  );
+  return rows[0];
+}
+
+/** Admin: itirazları (varsayılan olarak çözülmemiş) görev/başvuran bilgileriyle listeler. */
+async function listDisputes({ resolved = false } = {}) {
+  const { rows } = await query(
+    `SELECT
+        d.id, d.message, d.resolved, d.created_at,
+        t.id AS task_id, t.title AS task_title, t.city AS task_city,
+        u.full_name AS applicant_name
+      FROM task_disputes d
+      JOIN tasks t ON t.id = d.task_id
+      JOIN users u ON u.id = d.applicant_id
+     WHERE d.resolved = $1
+     ORDER BY d.created_at DESC`,
+    [resolved]
+  );
+  return rows;
+}
+
+async function resolveDispute(id) {
+  const { rows } = await query(
+    `UPDATE task_disputes SET resolved = true WHERE id = $1 RETURNING *`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
 module.exports = {
   findById,
   createTask,
@@ -242,10 +293,14 @@ module.exports = {
   getUserStats,
   createApplication,
   listPendingApplicationsForOwner,
+  listApplicationsByApplicant,
   findApplication,
   approveApplication,
   rejectApplication,
   listByCommentStatus,
   setCommentStatus,
   listApprovedCommentsPublic,
+  createDispute,
+  listDisputes,
+  resolveDispute,
 };

@@ -70,6 +70,12 @@ async function listByStatus(status) {
   return rows;
 }
 
+/** Bildirim gönderilecek tüm admin hesaplarını döner (itiraz/şikayet bildirimleri için). */
+async function listAdmins() {
+  const { rows } = await query(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE role = 'admin' AND status = 'approved'`);
+  return rows;
+}
+
 async function setStatus(id, status, { rejectionReason = null } = {}) {
   // $2'yi her iki kullanımda da açıkça user_status'a cast ediyoruz — aksi halde Postgres,
   // "status = $2" (enum bağlamı) ile "$2 = 'approved'" (CASE içindeki metin karşılaştırması)
@@ -167,6 +173,7 @@ module.exports = {
   findById,
   findByBarRegistry,
   listByStatus,
+  listAdmins,
   listApprovedByCourthouseInQueueOrder,
   setStatus,
   setResetToken,

@@ -131,6 +131,31 @@ const rejectComment = asyncHandler(async (req, res) => {
   res.json({ message: 'Yorum reddedildi.' });
 });
 
+// Başvuranların görevlerle ilgili admin'e ilettiği itirazlar.
+const listDisputes = asyncHandler(async (req, res) => {
+  const resolved = req.query.resolved === 'true';
+  const rows = await taskModel.listDisputes({ resolved });
+  res.json({
+    disputes: rows.map((d) => ({
+      id: d.id,
+      message: d.message,
+      resolved: d.resolved,
+      createdAt: d.created_at,
+      taskId: d.task_id,
+      taskTitle: d.task_title,
+      taskCity: d.task_city,
+      applicantName: d.applicant_name,
+    })),
+  });
+});
+
+const resolveDispute = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const dispute = await taskModel.resolveDispute(id);
+  if (!dispute) return res.status(404).json({ error: 'İtiraz bulunamadı.' });
+  res.json({ message: 'İtiraz kapatıldı.' });
+});
+
 module.exports = {
   listUsers,
   approveUser,
@@ -141,4 +166,6 @@ module.exports = {
   listComments,
   approveComment,
   rejectComment,
+  listDisputes,
+  resolveDispute,
 };

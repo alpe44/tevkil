@@ -42,6 +42,10 @@ const applyRules = [
   body('note').trim().notEmpty().withMessage('Tevkil ile ilgili bilgileri giriniz.'),
 ];
 
+const disputeRules = [
+  body('message').trim().isLength({ min: 3, max: 1000 }).withMessage('İtiraz mesajınızı giriniz.'),
+];
+
 // Herkese açık: açık görevleri görebilmek için giriş şart değil (Görev Panosu).
 router.get('/open', taskController.listOpen);
 
@@ -49,8 +53,10 @@ router.get('/queue', requireAuth, requireApproved, taskController.queueForCourth
 router.get('/mine', requireAuth, requireApproved, taskController.listMine);
 router.get('/taken', requireAuth, requireApproved, taskController.listTaken);
 router.get('/applications/mine', requireAuth, requireApproved, taskController.listMyApplications);
+router.get('/applications/submitted', requireAuth, requireApproved, taskController.listSubmittedApplications);
 router.post('/', requireAuth, requireApproved, createRules, taskController.create);
 router.post('/:id/apply', requireAuth, requireApproved, applyRules, taskController.apply);
+router.post('/:id/dispute', requireAuth, requireApproved, disputeRules, taskController.submitDispute);
 router.post('/:id/applications/:applicantId/approve', requireAuth, requireApproved, taskController.approveApplication);
 router.post('/:id/applications/:applicantId/reject', requireAuth, requireApproved, taskController.rejectApplication);
 router.post('/:id/complete', requireAuth, requireApproved, completeRules, taskController.complete);

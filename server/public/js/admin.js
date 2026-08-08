@@ -49,6 +49,7 @@ async function renderAdmin() {
   if (!currentUser || currentUser.role !== 'admin') return;
   if (adminActiveTab === 'avatars') return renderAvatarQueue();
   if (adminActiveTab === 'comments') return renderCommentQueue();
+  if (adminActiveTab === 'disputes') return renderDisputeQueue();
 
   const el = document.getElementById('adminUsersList');
   el.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
@@ -184,6 +185,48 @@ async function handleRejectComment(id) {
     await api.adminRejectComment(id, reason);
     showToast('Yorum reddedildi.');
     renderCommentQueue();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+/* ===================== İTİRAZLAR ===================== */
+function adminDisputeCardHTML(d) {
+  const created = new Date(d.createdAt).toLocaleString('tr-TR');
+  return (
+    '<div class="pending-card">' +
+    '<div>' +
+    '<h4>' + escapeHtml(d.taskTitle) + ' <span style="font-weight:400; color:var(--muted);">· ' + escapeHtml(d.taskCity) + '</span></h4>' +
+    '<div class="meta">Başvuran: ' + escapeHtml(d.applicantName) + ' · ' + created + '</div>' +
+    '<div class="desc" style="margin-top:8px; max-width:520px;">' + escapeHtml(d.message) + '</div>' +
+    '</div>' +
+    '<div style="display:flex; gap:8px;">' +
+    '<button class="small-btn solid" onclick="handleResolveDispute(' + d.id + ')">Kapat</button>' +
+    '</div>' +
+    '</div>'
+  );
+}
+
+async function renderDisputeQueue() {
+  const el = document.getElementById('adminUsersList');
+  el.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  try {
+    const { disputes } = await api.adminListDisputes();
+    if (disputes.length === 0) {
+      el.innerHTML = '<div class="empty-state"><h4>Liste boş</h4>Açık itiraz yok.</div>';
+      return;
+    }
+    el.innerHTML = disputes.map(adminDisputeCardHTML).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="empty-state"><h4>Yüklenemedi</h4>' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function handleResolveDispute(id) {
+  try {
+    await api.adminResolveDispute(id);
+    showToast('İtiraz kapatıldı.');
+    renderDisputeQueue();
   } catch (e) {
     showToast(e.message);
   }

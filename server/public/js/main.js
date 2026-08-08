@@ -68,7 +68,7 @@ document.querySelectorAll('.ptab[data-ptab]').forEach((btn) => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.ptab[data-ptab]').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
-    ['open', 'mine', 'taken', 'profile'].forEach((k) => {
+    ['open', 'mine', 'taken', 'applied', 'profile'].forEach((k) => {
       document.getElementById('ptab-' + k).style.display = k === btn.dataset.ptab ? 'block' : 'none';
     });
   });
@@ -335,6 +335,61 @@ function taskCardHTML(t, opts = {}) {
   );
 }
 
+/** "Başvurduğum Görevler" sekmesindeki kart: durum renkli mesaj + itiraz butonu. */
+function appliedTaskCardHTML(a) {
+  let statusHTML;
+  if (a.status === 'approved') {
+    statusHTML = '<div style="color:#7CB88B; font-weight:600;">Göreve seçildiniz! Görev sahibi sizinle irtibata geçecek.</div>';
+  } else if (a.status === 'rejected') {
+    statusHTML = '<div style="color:var(--seal-bright); font-weight:600;">Bu görev başka bir meslektaşınıza verildi.</div>';
+  } else {
+    statusHTML = '<div style="color:var(--muted);">Başvurunuz değerlendiriliyor…</div>';
+  }
+  return (
+    '<div class="task-card">' +
+    '<div>' +
+    '<span class="city-tag">' + escapeHtml(a.city) + '</span>' +
+    '<h4>' + escapeHtml(a.title) + '</h4>' +
+    '<div class="meta">Görev sahibi: ' + escapeHtml(a.ownerName) + ' · Başvuru: ' + timeAgo(a.appliedAt) + '</div>' +
+    statusHTML +
+    '</div>' +
+    '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">' +
+    '<button class="small-btn danger" onclick="openDisputeModal(' + a.taskId + ')">İtiraz Et</button>' +
+    '</div>' +
+    '</div>'
+  );
+}
+
+let disputeModalTaskId = null;
+function openDisputeModal(taskId) {
+  disputeModalTaskId = taskId;
+  document.getElementById('disputeMessage').value = '';
+  document.getElementById('disputeErr').style.display = 'none';
+  document.getElementById('disputeModal').classList.add('active');
+}
+function closeDisputeModal() {
+  document.getElementById('disputeModal').classList.remove('active');
+  disputeModalTaskId = null;
+}
+async function submitDispute() {
+  const errEl = document.getElementById('disputeErr');
+  errEl.style.display = 'none';
+  const message = document.getElementById('disputeMessage').value.trim();
+  if (!message) {
+    errEl.textContent = 'Lütfen açıklama girin.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    await api.submitDispute(disputeModalTaskId, message);
+    closeDisputeModal();
+    showToast('İtirazınız admin\'e iletildi.');
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
@@ -441,12 +496,14 @@ async function renderPanel() {
   const openEl = document.getElementById('openTasksList');
   const mineEl = document.getElementById('mineTasksList');
   const takenEl = document.getElementById('takenTasksList');
+  const appliedEl = document.getElementById('appliedTasksList');
 
   try {
-    const [{ tasks: open }, { tasks: mine }, { tasks: taken }] = await Promise.all([
+    const [{ tasks: open }, { tasks: mine }, { tasks: taken }, { applications: applied }] = await Promise.all([
       api.listOpenTasks(),
       api.listMyTasks(),
       api.listTakenTasks(),
+      api.listSubmittedApplications(),
     ]);
 
     openEl.innerHTML = open.length
@@ -460,6 +517,10 @@ async function renderPanel() {
     takenEl.innerHTML = taken.length
       ? taken.map((t) => taskCardHTML(t, { mode: 'taken' })).join('')
       : '<div class="empty-state"><h4>Henüz görev üstlenmediniz</h4>Açık görevlerden birini alarak başlayın.</div>';
+
+    appliedEl.innerHTML = applied.length
+      ? applied.map(appliedTaskCardHTML).join('')
+      : '<div class="empty-state"><h4>Henüz başvuru yapmadınız</h4>Görev Panosu\'ndan bir göreve başvurabilirsiniz.</div>';
   } catch (e) {
     showToast('Görevler yüklenemedi: ' + e.message);
   }

@@ -153,6 +153,42 @@ const listMyApplications = asyncHandler(async (req, res) => {
   res.json({ tasks: Array.from(taskMap.values()) });
 });
 
+/** Bir avukatın kendi yaptığı tüm başvuruları (durumu ne olursa olsun) listeler — "Başvurduğum Görevler". */
+const listSubmittedApplications = asyncHandler(async (req, res) => {
+  const rows = await taskModel.listApplicationsByApplicant(req.user.id);
+  res.json({
+    applications: rows.map((r) => ({
+      applicationId: r.application_id,
+      taskId: r.task_id,
+      status: r.application_status,
+      taskStatus: r.task_status,
+      title: r.task_title,
+      city: r.task_city,
+      ownerName: r.owner_name,
+      appliedAt: r.applied_at,
+    })),
+  });
+});
+
+/** Başvuran, bir görevle ilgili admin'e itiraz iletir (ör. görev sahibiyle iletişim kurulamıyor vb.). */
+const submitDispute = asyncHandler(async (req, res) => {
+  if (!handleValidation(req, res)) return;
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: 'Geçersiz görev id.' });
+
+  const existing = await taskModel.findById(id);
+  if (!existing) return res.status(404).json({ error: 'Görev bulunamadı.' });
+
+  const application = await taskModel.findApplication(id, req.user.id);
+  if (!application) {
+    return res.status(403).json({ error: 'Yalnızca başvurduğunuz bir görev için itiraz edebilirsiniz.' });
+  }
+
+  const dispute = await taskModel.createDispute({ taskId: id, applicantId: req.user.id, message: req.body.message.trim() });
+  fireAndForget(notifyService.notifyNewDispute(dispute, existing, req.user));
+  res.status(201).json({ message: 'İtirazınız admin\'e iletildi.' });
+});
+
 /** Görev sahibi bir başvuruyu onaylar: görev o kişiye atanır, diğer bekleyenler otomatik reddedilir. */
 const approveApplication = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
@@ -240,6 +276,8 @@ module.exports = {
   create,
   apply,
   listMyApplications,
+  listSubmittedApplications,
+  submitDispute,
   approveApplication,
   rejectApplication,
   complete,
