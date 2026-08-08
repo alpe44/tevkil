@@ -42,7 +42,7 @@ async function notifyNewApplication(task, applicant) {
   const owner = await userModel.findById(task.owner_id);
   if (!owner) return;
   const title = 'Yeni başvuru: ' + task.title;
-  const body = applicant.full_name.split(' ')[0] + ' bu göreve başvurdu. Görev Takibi\'nden inceleyip onaylayabilirsiniz.';
+  const body = 'Görevinize yeni bir başvuru geldi. Görev Takibi\'nden inceleyip onaylayabilirsiniz.';
 
   await notificationModel.create({ userId: owner.id, type: 'task_application', title, body, taskId: task.id });
   await mailer.sendMail({
