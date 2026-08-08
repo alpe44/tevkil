@@ -28,6 +28,7 @@
     <nav class="links">
       <button class="nav-btn active" data-view="landing">Ana Sayfa</button>
       <button class="nav-btn" data-view="board">Görev Panosu</button>
+      <button class="nav-btn" data-view="completed">Tamamlananlar</button>
       <button class="nav-btn" id="navPanel" data-view="panel">Panelim</button>
       <button class="nav-btn" id="navTracking" data-view="tracking" style="display:none;">Görev Takibi</button>
       <button class="nav-btn" id="navAdmin" data-view="admin" style="display:none;">Admin</button>
@@ -66,12 +67,20 @@
         <button class="ghost-btn" data-view="board">Açık Görevlere Göz At</button>
       </div>
     </div>
-    <div class="docket">
-      <div class="docket-head">
-        <span class="t">AKTİF GÖREVLER</span>
-        <span class="live-pill"><span class="p"></span>CANLI</span>
+    <div class="hero-right-col">
+      <div class="docket">
+        <div class="docket-head">
+          <span class="t">AKTİF GÖREVLER</span>
+          <span class="live-pill"><span class="p"></span>CANLI</span>
+        </div>
+        <div class="docket-list" id="landingDocket"></div>
       </div>
-      <div class="docket-list" id="landingDocket"></div>
+      <div class="docket completed-box">
+        <div class="docket-head">
+          <span class="t">TAMAMLANANLAR</span>
+        </div>
+        <div class="docket-list" id="landingCompleted"></div>
+      </div>
     </div>
   </div>
 
@@ -158,6 +167,17 @@
       <span class="who">Tüm açık görevleri görebilirsiniz. Kabul etmek için giriş yapmalısınız.</span>
     </div>
     <div class="panel-grid" id="boardList"></div>
+  </div>
+</div>
+
+<!-- ================= TAMAMLANANLAR (public, onaylı yorumlu görevler) ================= -->
+<div class="view" id="view-completed">
+  <div class="panel-wrap">
+    <div class="panel-top">
+      <h2>Tamamlananlar</h2>
+      <span class="who">Admin onaylı yorumlarla, son tamamlanan görevler.</span>
+    </div>
+    <div id="completedList"></div>
   </div>
 </div>
 
@@ -394,6 +414,7 @@
       <button class="ptab" data-atab="approved">Onaylılar</button>
       <button class="ptab" data-atab="rejected">Reddedilenler</button>
       <button class="ptab" data-atab="avatars">Profil Fotoğrafları</button>
+      <button class="ptab" data-atab="comments">Yorumlar</button>
     </div>
 
     <div class="panel-grid" id="adminUsersList"></div>
@@ -433,6 +454,10 @@
     <h3>Görevi tamamla ve puanla</h3>
     <p style="font-size:13px; color:var(--muted-dark); margin-bottom:6px;">Meslektaşınızın performansını değerlendirin.</p>
     <div class="star-picker" id="starPicker"></div>
+    <div class="field" style="margin-top:14px;">
+      <label>Yorumunuz (opsiyonel)</label>
+      <textarea id="ratingComment" placeholder="Deneyiminizi paylaşın... (yayınlanmadan önce admin onayından geçer)"></textarea>
+    </div>
     <div class="modal-actions">
       <button class="ghost-btn" style="border-color:#ccc; color:var(--text-dark);" onclick="closeModal()">Vazgeç</button>
       <button class="cta-btn" onclick="submitRating()">Tamamla ve Kaydet</button>

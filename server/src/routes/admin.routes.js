@@ -24,4 +24,12 @@ router.post(
   adminController.rejectAvatar
 );
 
+router.get('/comments', adminController.listComments);
+router.post('/tasks/:id/comment/approve', adminController.approveComment);
+router.post(
+  '/tasks/:id/comment/reject',
+  [body('reason').optional({ checkFalsy: true }).isLength({ max: 500 })],
+  adminController.rejectComment
+);
+
 module.exports = router;

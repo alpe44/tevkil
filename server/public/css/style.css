@@ -166,6 +166,10 @@ nav.links{display:flex; gap:6px; align-items:center;}
 .hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
 
 /* docket board — signature element */
+.hero-right-col{display:flex; flex-direction:column; gap:18px;}
+.completed-box .docket-head{border-bottom-color:var(--brass-deep);}
+.completed-box .docket-list{max-height:220px; overflow-y:auto;}
+
 .docket{
   background:var(--ink-2); color:var(--paper); border-radius:6px;
   padding:0; overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
@@ -398,8 +402,14 @@ footer p{font-size:12.5px; color:var(--muted);}
 
 .stars{color:var(--brass-bright); font-size:14px; letter-spacing:2px;}
 .star-picker{display:flex; gap:6px; margin:8px 0 14px;}
-.star-picker button{background:none; border:none; font-size:22px; color:var(--paper-2); opacity:0.5;}
-.star-picker button.picked{opacity:1; color:var(--brass);}
+.star-picker button{
+  background:none; border:none; font-size:30px; line-height:1; cursor:pointer;
+  color:#E4D9BE; opacity:1;
+  -webkit-text-stroke:1.5px #1B2433; text-stroke:1.5px #1B2433;
+  transition:color .15s ease, transform .1s ease;
+}
+.star-picker button:hover{transform:scale(1.1);}
+.star-picker button.picked{color:var(--brass);}
 
 .modal-bg{
   display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:100;

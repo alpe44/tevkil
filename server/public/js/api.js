@@ -58,7 +58,11 @@ const api = {
     apiRequest('/tasks/' + taskId + '/applications/' + applicantId + '/approve', { method: 'POST' }),
   rejectApplication: (taskId, applicantId) =>
     apiRequest('/tasks/' + taskId + '/applications/' + applicantId + '/reject', { method: 'POST' }),
-  completeTask: (id, rating) => apiRequest('/tasks/' + id + '/complete', { method: 'POST', body: { rating } }),
+  completeTask: (id, rating, comment) => apiRequest('/tasks/' + id + '/complete', { method: 'POST', body: { rating, comment } }),
+  publicCompleted: () => apiRequest('/public/completed'),
+  adminListComments: (status) => apiRequest('/admin/comments?status=' + encodeURIComponent(status)),
+  adminApproveComment: (id) => apiRequest('/admin/tasks/' + id + '/comment/approve', { method: 'POST' }),
+  adminRejectComment: (id, reason) => apiRequest('/admin/tasks/' + id + '/comment/reject', { method: 'POST', body: { reason } }),
   listNotifications: () => apiRequest('/notifications'),
   markNotificationRead: (id) => apiRequest('/notifications/' + id + '/read', { method: 'POST' }),
   markAllNotificationsRead: () => apiRequest('/notifications/read-all', { method: 'POST' }),

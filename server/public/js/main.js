@@ -21,6 +21,7 @@ function switchView(name) {
   if (name === 'panel') renderPanel();
   if (name === 'admin') renderAdmin();
   if (name === 'tracking') renderTracking();
+  if (name === 'completed') renderCompletedShowcase();
 }
 
 document.querySelectorAll('[data-view]').forEach((el) => {
@@ -220,6 +221,7 @@ async function submitAcceptTask() {
 function openRatingModal(id) {
   modalTaskId = id;
   pickedStars = 0;
+  document.getElementById('ratingComment').value = '';
   const picker = document.getElementById('starPicker');
   picker.innerHTML = '';
   for (let i = 1; i <= 5; i++) {
@@ -249,9 +251,10 @@ async function submitRating() {
     return;
   }
   try {
-    await api.completeTask(modalTaskId, pickedStars);
+    const comment = document.getElementById('ratingComment').value.trim();
+    const { message } = await api.completeTask(modalTaskId, pickedStars, comment || undefined);
     closeModal();
-    showToast('Görev tamamlandı ve puanlandı.');
+    showToast(message || 'Görev tamamlandı ve puanlandı.');
     renderPanel();
     // Panelde gösterilen puan/tamamlanan sayaçları tazelemek için oturumu yeniden çek.
     const { user } = await api.me();
@@ -330,6 +333,51 @@ async function renderLandingDocket() {
       .join('');
   } catch (e) {
     el.innerHTML = '<div class="docket-item"><span class="desc">Görevler yüklenemedi.</span></div>';
+  }
+}
+
+function completedItemHTML(t) {
+  return (
+    '<div class="docket-item">' +
+    '<div>' +
+    '<div class="city">' + escapeHtml(t.city) + (t.rating ? ' · ' + t.rating + '★' : '') + '</div>' +
+    '<div class="desc">' + escapeHtml(t.title) + '</div>' +
+    (t.comment ? '<div class="desc" style="font-style:italic; margin-top:4px;">“' + escapeHtml(t.comment) + '”</div>' : '') +
+    '</div>' +
+    '<div class="time">' + timeAgo(t.completedAt) + '</div>' +
+    '</div>'
+  );
+}
+
+async function renderLandingCompleted() {
+  const el = document.getElementById('landingCompleted');
+  try {
+    const { tasks } = await api.publicCompleted();
+    const recent = tasks.slice(0, 4);
+    el.innerHTML = recent.length
+      ? recent.map(completedItemHTML).join('')
+      : '<div class="docket-item"><span class="desc">Henüz onaylı yorum yok.</span></div>';
+  } catch (e) {
+    el.innerHTML = '<div class="docket-item"><span class="desc">Yüklenemedi.</span></div>';
+  }
+}
+
+async function renderCompletedShowcase() {
+  const el = document.getElementById('completedList');
+  el.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  try {
+    const { tasks } = await api.publicCompleted();
+    if (tasks.length === 0) {
+      el.innerHTML = '<div class="empty-state"><h4>Henüz yok</h4>Admin onaylı bir yorum yayınlandığında burada listelenir.</div>';
+      return;
+    }
+    el.innerHTML =
+      '<div class="docket completed-box" style="max-width:720px;">' +
+      '<div class="docket-list" style="max-height:none;">' +
+      tasks.map(completedItemHTML).join('') +
+      '</div></div>';
+  } catch (e) {
+    el.innerHTML = '<div class="empty-state"><h4>Yüklenemedi</h4>' + escapeHtml(e.message) + '</div>';
   }
 }
 
@@ -470,6 +518,7 @@ async function handleRejectApplication(taskId, applicantId) {
   await bootstrapSession();
   showResetFormIfTokenPresent();
   renderLandingDocket();
+  renderLandingCompleted();
   renderStats();
   renderBoard();
   startNotifPolling();

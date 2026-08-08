@@ -26,7 +26,10 @@ const createRules = [
   }),
 ];
 
-const completeRules = [body('rating').isInt({ min: 1, max: 5 }).withMessage('1 ile 5 arası bir puan giriniz.')];
+const completeRules = [
+  body('rating').isInt({ min: 1, max: 5 }).withMessage('1 ile 5 arası bir puan giriniz.'),
+  body('comment').optional({ checkFalsy: true }).isLength({ max: 1000 }).withMessage('Yorum en fazla 1000 karakter olabilir.'),
+];
 
 const applyRules = [
   body('phone')

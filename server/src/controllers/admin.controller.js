@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const userModel = require('../models/userModel');
+const taskModel = require('../models/taskModel');
 const notifyService = require('../services/notifyService');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -9,6 +10,7 @@ function fireAndForget(promise) {
 
 const VALID_STATUSES = ['pending', 'approved', 'rejected'];
 const VALID_AVATAR_STATUSES = ['pending', 'approved', 'rejected'];
+const VALID_COMMENT_STATUSES = ['pending', 'approved', 'rejected'];
 
 const listUsers = asyncHandler(async (req, res) => {
   const status = req.query.status || 'pending';
@@ -86,4 +88,57 @@ const rejectAvatar = asyncHandler(async (req, res) => {
   res.json({ message: 'Fotoğraf reddedildi.', user });
 });
 
-module.exports = { listUsers, approveUser, rejectUser, listAvatarRequests, approveAvatar, rejectAvatar };
+// Görev tamamlanırken bırakılan yorumlar: onay bekleyen/onaylı/reddedilen kuyruğu.
+const listComments = asyncHandler(async (req, res) => {
+  const status = req.query.status || 'pending';
+  if (!VALID_COMMENT_STATUSES.includes(status)) {
+    return res.status(400).json({ error: 'Geçersiz status parametresi.' });
+  }
+  const rows = await taskModel.listByCommentStatus(status);
+  const tasks = rows.map((t) => ({
+    id: t.id,
+    title: t.title,
+    city: t.city,
+    rating: t.rating,
+    comment: t.comment,
+    commentRejectionReason: t.comment_rejection_reason,
+    ownerName: t.owner_name,
+    assigneeName: t.assignee_name,
+    completedAt: t.completed_at,
+  }));
+  res.json({ tasks });
+});
+
+const approveComment = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const task = await taskModel.setCommentStatus(id, 'approved');
+  if (!task) return res.status(409).json({ error: 'Onay bekleyen bir yorum yok.' });
+  const owner = await userModel.findById(task.owner_id);
+  if (owner) fireAndForget(notifyService.notifyCommentApproved(owner, task));
+  res.json({ message: 'Yorum onaylandı, Tamamlananlar sayfasında yayınlandı.' });
+});
+
+const rejectComment = asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array()[0].msg });
+  }
+  const id = Number(req.params.id);
+  const task = await taskModel.setCommentStatus(id, 'rejected', { rejectionReason: req.body.reason || null });
+  if (!task) return res.status(409).json({ error: 'Onay bekleyen bir yorum yok.' });
+  const owner = await userModel.findById(task.owner_id);
+  if (owner) fireAndForget(notifyService.notifyCommentRejected(owner, task, req.body.reason));
+  res.json({ message: 'Yorum reddedildi.' });
+});
+
+module.exports = {
+  listUsers,
+  approveUser,
+  rejectUser,
+  listAvatarRequests,
+  approveAvatar,
+  rejectAvatar,
+  listComments,
+  approveComment,
+  rejectComment,
+};

@@ -6,6 +6,7 @@ const BASE_SELECT = `
     t.created_at, t.assigned_at, t.completed_at,
     t.acceptance_phone, t.acceptance_contact, t.acceptance_note,
     t.task_type, t.budget, t.due_time, t.is_off_site, t.off_site_address,
+    t.comment, t.comment_status, t.comment_rejection_reason,
     t.owner_id, ou.full_name AS owner_name,
     t.assignee_id, au.full_name AS assignee_name
   FROM tasks t
@@ -169,16 +170,49 @@ async function rejectApplication(taskId, applicantId) {
 
 /**
  * Atomik tamamlama: yalnızca görev sahibi VE görev hâlâ 'assigned' durumundaysa günceller.
+ * Yorum girildiyse admin onayına düşer ('pending'); boşsa yorum yok ('none').
  */
-async function completeTask(taskId, ownerId, rating) {
+async function completeTask(taskId, ownerId, rating, comment) {
+  const trimmedComment = comment ? String(comment).trim() : '';
   const { rows } = await query(
     `UPDATE tasks
-        SET status = 'completed', rating = $3, completed_at = now()
+        SET status = 'completed', rating = $3, completed_at = now(),
+            comment = $4, comment_status = $5
       WHERE id = $1 AND owner_id = $2 AND status = 'assigned'
       RETURNING id`,
-    [taskId, ownerId, rating]
+    [taskId, ownerId, rating, trimmedComment || null, trimmedComment ? 'pending' : 'none']
   );
   return rows.length ? findById(taskId) : null;
+}
+
+/** Admin: onay bekleyen/onaylı/reddedilen yorumları görev+taraf bilgileriyle listeler. */
+async function listByCommentStatus(status) {
+  const { rows } = await query(
+    `${BASE_SELECT} WHERE t.comment_status = $1 ORDER BY t.completed_at DESC`,
+    [status]
+  );
+  return rows;
+}
+
+/** Admin: bir yorumu onaylar veya reddeder. */
+async function setCommentStatus(taskId, status, { rejectionReason = null } = {}) {
+  const { rows } = await query(
+    `UPDATE tasks
+        SET comment_status = $2, comment_rejection_reason = $3
+      WHERE id = $1 AND comment_status = 'pending'
+      RETURNING id`,
+    [taskId, status, rejectionReason]
+  );
+  return rows.length ? findById(taskId) : null;
+}
+
+/** Herkese açık "Tamamlananlar" vitrini: onaylı yorumu olan, en yeni tamamlanan görevler. */
+async function listApprovedCommentsPublic(limit = 20) {
+  const { rows } = await query(
+    `${BASE_SELECT} WHERE t.comment_status = 'approved' ORDER BY t.completed_at DESC LIMIT $1`,
+    [limit]
+  );
+  return rows;
 }
 
 /** Bir kullanıcının profil sayaçlarını (görev tablosundan canlı) hesaplar. */
@@ -211,4 +245,7 @@ module.exports = {
   findApplication,
   approveApplication,
   rejectApplication,
+  listByCommentStatus,
+  setCommentStatus,
+  listApprovedCommentsPublic,
 };

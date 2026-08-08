@@ -39,6 +39,9 @@ function serialize(t) {
     dueTime: t.due_time,
     isOffSite: t.is_off_site,
     offSiteAddress: t.off_site_address,
+    comment: t.comment,
+    commentStatus: t.comment_status,
+    commentRejectionReason: t.comment_rejection_reason,
   };
 }
 
@@ -230,11 +233,15 @@ const complete = asyncHandler(async (req, res) => {
     return res.status(409).json({ error: 'Yalnızca üstlenilmiş görevler tamamlanabilir.' });
   }
 
-  const task = await taskModel.completeTask(id, req.user.id, req.body.rating);
+  const task = await taskModel.completeTask(id, req.user.id, req.body.rating, req.body.comment);
   if (!task) {
     return res.status(409).json({ error: 'Görev tamamlanamadı, tekrar deneyin.' });
   }
-  res.json({ message: 'Görev tamamlandı ve puanlandı.', task: serialize(task) });
+  const message =
+    task.comment_status === 'pending'
+      ? 'Görev tamamlandı ve puanlandı. Yorumunuz admin onayından sonra yayınlanacak.'
+      : 'Görev tamamlandı ve puanlandı.';
+  res.json({ message, task: serialize(task) });
 });
 
 module.exports = {

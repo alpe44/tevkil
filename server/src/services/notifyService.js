@@ -145,6 +145,23 @@ async function notifyAvatarApproved(user) {
   });
 }
 
+async function notifyCommentApproved(owner, task) {
+  const title = 'Yorumunuz yayınlandı: ' + task.title;
+  const body = 'Görev yorumunuz onaylandı, "Tamamlananlar" sayfasında yayınlandı.';
+  await notificationModel.create({ userId: owner.id, type: 'comment_approved', title, body, taskId: task.id });
+  await mailer.sendMail({
+    to: owner.email,
+    subject: '[Nöbetçi] ' + title,
+    text: 'Merhaba ' + owner.full_name + ',\n\n"' + task.title + '" görevi için bıraktığınız yorum onaylandı ve "Tamamlananlar" sayfasında yayınlandı.\n',
+  });
+}
+
+async function notifyCommentRejected(owner, task, reason) {
+  const title = 'Yorumunuz yayınlanmadı: ' + task.title;
+  const body = reason || undefined;
+  await notificationModel.create({ userId: owner.id, type: 'comment_rejected', title, body, taskId: task.id });
+}
+
 async function notifyAvatarRejected(user, reason) {
   const title = 'Profil fotoğrafınız onaylanmadı';
   const body = reason || undefined;
@@ -166,4 +183,6 @@ module.exports = {
   notifyAccountRejected,
   notifyAvatarApproved,
   notifyAvatarRejected,
+  notifyCommentApproved,
+  notifyCommentRejected,
 };

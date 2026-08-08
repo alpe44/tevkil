@@ -48,6 +48,7 @@ function adminUserCardHTML(u) {
 async function renderAdmin() {
   if (!currentUser || currentUser.role !== 'admin') return;
   if (adminActiveTab === 'avatars') return renderAvatarQueue();
+  if (adminActiveTab === 'comments') return renderCommentQueue();
 
   const el = document.getElementById('adminUsersList');
   el.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
@@ -125,6 +126,64 @@ async function handleRejectAvatar(id) {
     await api.adminRejectAvatar(id, reason);
     showToast('Fotoğraf reddedildi.');
     renderAvatarQueue();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+/* ===================== GÖREV YORUMU ONAYI ===================== */
+function adminCommentCardHTML(t) {
+  const completed = t.completedAt ? new Date(t.completedAt).toLocaleString('tr-TR') : '—';
+  return (
+    '<div class="pending-card">' +
+    '<div>' +
+    '<h4>' + escapeHtml(t.title) + ' <span style="font-weight:400; color:var(--muted);">· ' + escapeHtml(t.city) + '</span></h4>' +
+    '<div class="meta">' +
+    'Görev sahibi: ' + escapeHtml(t.ownerName) + ' · Üstlenen: ' + escapeHtml(t.assigneeName) + '<br>' +
+    'Puan: ' + (t.rating || '—') + '★ · Tamamlandı: ' + completed +
+    '</div>' +
+    '<div class="desc" style="font-style:italic; margin-top:8px; max-width:520px;">“' + escapeHtml(t.comment) + '”</div>' +
+    (t.commentRejectionReason ? '<div class="meta">Red sebebi: ' + escapeHtml(t.commentRejectionReason) + '</div>' : '') +
+    '</div>' +
+    '<div style="display:flex; gap:8px;">' +
+    '<button class="small-btn solid" onclick="handleApproveComment(' + t.id + ')">Onayla</button>' +
+    '<button class="small-btn danger" onclick="handleRejectComment(' + t.id + ')">Reddet</button>' +
+    '</div>' +
+    '</div>'
+  );
+}
+
+async function renderCommentQueue() {
+  const el = document.getElementById('adminUsersList');
+  el.innerHTML = '<div class="empty-state">Yükleniyor…</div>';
+  try {
+    const { tasks } = await api.adminListComments('pending');
+    if (tasks.length === 0) {
+      el.innerHTML = '<div class="empty-state"><h4>Liste boş</h4>Onay bekleyen yorum yok.</div>';
+      return;
+    }
+    el.innerHTML = tasks.map(adminCommentCardHTML).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="empty-state"><h4>Yüklenemedi</h4>' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function handleApproveComment(id) {
+  try {
+    await api.adminApproveComment(id);
+    showToast('Yorum onaylandı.');
+    renderCommentQueue();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function handleRejectComment(id) {
+  const reason = window.prompt('Red sebebi (opsiyonel):', '') || '';
+  try {
+    await api.adminRejectComment(id, reason);
+    showToast('Yorum reddedildi.');
+    renderCommentQueue();
   } catch (e) {
     showToast(e.message);
   }
