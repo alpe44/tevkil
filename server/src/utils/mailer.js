@@ -1,3 +1,4 @@
+const https = require('https');
 const nodemailer = require('nodemailer');
 
 let transporter = null;
@@ -23,16 +24,75 @@ function getTransporter() {
 }
 
 /**
- * E-posta gönderir. SMTP_HOST tanımlı değilse (dev ortamı) gerçekten göndermek yerine
- * içeriği konsola yazar — böylece SMTP olmadan da tüm bildirim akışı geliştirilip
- * test edilebilir, production'da sadece .env'e SMTP bilgileri eklemek yeterli olur.
+ * Resend'in HTTP API'si üzerinden e-posta gönderir. Bazı barındırma sağlayıcıları
+ * (ör. Railway) giden SMTP bağlantılarını çok yavaş/tıkanık yönlendirebiliyor
+ * (dakikalarca gecikme); HTTPS/443 üzerinden çalışan bu API yolu çok daha hızlı
+ * ve güvenilir. RESEND_API_KEY tanımlıysa SMTP yerine bu kullanılır.
+ */
+function sendViaResendApi({ from, to, subject, text, html }) {
+  return new Promise((resolve, reject) => {
+    const payload = JSON.stringify({ from, to, subject, text, html });
+    const req = https.request(
+      {
+        hostname: 'api.resend.com',
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Length': Buffer.byteLength(payload, 'utf8'),
+        },
+        timeout: 15000,
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (d) => (body += d));
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            let parsed = {};
+            try {
+              parsed = JSON.parse(body);
+            } catch (e) {
+              /* yanıt boş/parse edilemedi olabilir, önemli değil */
+            }
+            resolve(parsed);
+          } else {
+            reject(new Error(`Resend API ${res.statusCode}: ${body}`));
+          }
+        });
+      }
+    );
+    req.on('timeout', () => req.destroy(new Error('Resend API isteği zaman aşımına uğradı.')));
+    req.on('error', reject);
+    req.write(payload, 'utf8');
+    req.end();
+  });
+}
+
+/**
+ * E-posta gönderir. Öncelik sırası:
+ *   1) RESEND_API_KEY tanımlıysa Resend HTTP API (hızlı, SMTP port kısıtlamalarından etkilenmez)
+ *   2) SMTP_HOST tanımlıysa klasik SMTP (nodemailer)
+ *   3) İkisi de yoksa (dev ortamı) içeriği konsola yazar — SMTP olmadan da tüm
+ *      bildirim akışı geliştirilip test edilebilir, production'da sadece ortam
+ *      değişkeni eklemek yeterli olur.
  */
 async function sendMail({ to, subject, text, html }) {
-  const t = getTransporter();
   const from = process.env.SMTP_FROM || 'Nöbetçi <bildirim@tevkil-agi.local>';
 
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const info = await sendViaResendApi({ from, to, subject, text, html });
+      return { simulated: false, messageId: info.id };
+    } catch (err) {
+      console.error('[mailer] Resend API gönderim hatası:', err.message);
+      return { simulated: false, error: err.message };
+    }
+  }
+
+  const t = getTransporter();
   if (!t) {
-    console.log('\n[mailer] SMTP yapılandırılmadı — e-posta konsola yazdırılıyor:');
+    console.log('\n[mailer] SMTP/Resend yapılandırılmadı — e-posta konsola yazdırılıyor:');
     console.log(`  Kime: ${to}`);
     console.log(`  Konu: ${subject}`);
     console.log(`  İçerik: ${text}\n`);
@@ -50,4 +110,4 @@ async function sendMail({ to, subject, text, html }) {
   }
 }
 
-module.exports = { sendMail, isConfigured: () => smtpConfigured };
+module.exports = { sendMail, isConfigured: () => smtpConfigured || Boolean(process.env.RESEND_API_KEY) };

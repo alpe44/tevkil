@@ -21,10 +21,6 @@ async function requireAuth(req, res, next) {
     req.user = user;
     next();
   } catch (err) {
-    console.error(
-      '[auth] requireAuth hata:', err.name, '-', err.message,
-      err.expiredAt ? `- expiredAt=${err.expiredAt.toISOString()} now=${new Date().toISOString()}` : ''
-    );
     return res.status(401).json({ error: 'Oturum geçersiz veya süresi dolmuş.' });
   }
 }
